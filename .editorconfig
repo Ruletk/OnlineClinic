@@ -1,0 +1,34 @@
+# Editor configuration, see http://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+
+# === Markdown ===
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false
+
+# === Node / Configs ===
+[*.{js,jsx,ts,tsx,json,yml,yaml,css,scss,less,html,vue}]
+indent_style = space
+indent_size = 2
+
+# === Golang ===
+[*.{go}]
+indent_style = tab
+
+# === Binary ===
+[*.{png,jpg,jpeg,gif,ico,woff,woff2,eot,ttf,otf}]
+charset = unset
+
+# === SQL ===
+[*.sql]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = false 

@@ -1,0 +1,15 @@
+**/node_modules
+**/dist
+**/.git
+**/.vscode
+**/.github
+**/logs
+**/tmp
+
+.editorconfig
+.gitignore
+LICENSE
+README.md
+
+
+!apps/
