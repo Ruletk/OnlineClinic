@@ -1,0 +1,38 @@
+FROM golang:1.23.8 as builder
+
+ARG THIS_SERVICE=gateway
+
+WORKDIR /app
+
+COPY pkg/ ./pkg
+
+RUN find pkg -name go.mod -type f -exec dirname {} \; | \
+    xargs -I{} sh -c 'cd "{}" && go mod download'
+
+COPY apps/$THIS_SERVICE/go.mod apps/$THIS_SERVICE/go.sum ./service/
+WORKDIR /app/service
+
+RUN for pkg_dir in ../../pkg/*/; do \
+    if [ -f "${pkg_dir}go.mod" ]; then \
+        module_name=$(grep '^module' "${pkg_dir}go.mod" | awk '{print $2}'); \
+        go mod edit -replace "${module_name}=${pkg_dir}"; \
+    fi; \
+done
+
+RUN go mod download
+
+WORKDIR /app
+COPY apps/$THIS_SERVICE ./service
+
+WORKDIR /app/service
+# -ldflags может нарушить стабильность, если такое происходит, нужно попробовать убрать этот флаг
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/bin/service ./cmd/main.go && \
+    chmod 100 /app/bin/service
+
+
+FROM gcr.io/distroless/static as runner
+
+USER 10001:10001
+COPY --chown=10001:10001 --from=builder /app/bin/service /
+
+ENTRYPOINT ["/service"]
