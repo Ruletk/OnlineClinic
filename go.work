@@ -1,0 +1,16 @@
+go 1.23.8
+
+use (
+	./apps/appointment
+	./apps/auth
+	./apps/doctor
+	./apps/medicalrecords
+	./apps/notification
+	./apps/patient
+	./apps/prescription
+	./apps/user
+
+	./pkg/config
+	./pkg/database
+	pkg/logging
+)

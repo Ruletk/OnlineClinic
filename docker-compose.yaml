@@ -1,8 +1,6 @@
 services:
   # Template
   #
-
-
   db:
     image: postgres:17.4
     container_name: db
@@ -23,7 +21,104 @@ services:
       interval: 1s
       timeout: 1s
       retries: 100
-  
+
+  appointment:
+    build:
+      context: .
+      dockerfile: apps/appointment/Dockerfile
+    container_name: appointment
+    restart: always
+    environment:
+      - TZ=Asia/Aqtobe
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+
+  auth:
+    build:
+      context: .
+      dockerfile: apps/auth/Dockerfile
+    container_name: auth
+    restart: always
+    environment:
+      - TZ=Asia/Aqtobe
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+
+  doctor:
+    build:
+      context: .
+      dockerfile: apps/doctor/Dockerfile
+    container_name: doctor
+    restart: always
+    environment:
+      - TZ=Asia/Aqtobe
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+
+  medicalrecords:
+    build:
+      context: .
+      dockerfile: apps/medicalrecords/Dockerfile
+    container_name: medicalrecords
+    restart: always
+    environment:
+      - TZ=Asia/Aqtobe
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+
+  patient:
+    build:
+      context: .
+      dockerfile: apps/patient/Dockerfile
+    container_name: patient
+    restart: always
+    environment:
+      - TZ=Asia/Aqtobe
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+
+  prescription:
+    build:
+      context: .
+      dockerfile: apps/prescription/Dockerfile
+    container_name: prescription
+    restart: always
+    environment:
+      - TZ=Asia/Aqtobe
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+
+  user:
+    build:
+      context: .
+      dockerfile: apps/user/Dockerfile
+    container_name: user
+    restart: always
+    environment:
+      - TZ=Asia/Aqtobe
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
 
 volumes:
   db_data:
