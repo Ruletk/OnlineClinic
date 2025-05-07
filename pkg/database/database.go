@@ -34,13 +34,12 @@ func NewPostgresDatabase(config *config.Config) (*gorm.DB, error) {
 // Converts the config object to a string.
 func GetPostgresConnectionString(config *config.Config) string {
 	return fmt.Sprintf(
-		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s charset=%s",
+		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		config.Database.Host,
 		config.Database.Port,
 		config.Database.User,
 		config.Database.Password,
 		config.Database.DBName,
 		config.Database.SSLMode,
-		config.Database.Charset,
 	)
 }
