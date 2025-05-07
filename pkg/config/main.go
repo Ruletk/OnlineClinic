@@ -2,7 +2,7 @@ package config
 
 import (
 	_var "github.com/Ruletk/OnlineClinic/pkg/config/logging"
-	"os"
+	"io"
 )
 
 type Config struct {
@@ -30,6 +30,7 @@ type LoggerConfig struct {
 	Level        _var.LoggerLevel
 	Format       _var.LoggerFormat
 	EnableCaller bool
-	Output       *os.File
+	Output       io.Writer
 	TestMode     bool
+	LoggerName   string
 }
