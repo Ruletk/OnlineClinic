@@ -19,7 +19,7 @@ func NewPostgresDatabase(config *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("invalid database config: %w", err)
 	}
 
-	url := getPostgresConnectionString(config)
+	url := GetPostgresConnectionString(config)
 	db := postgres.Open(url)
 
 	database, err := gorm.Open(db, &gorm.Config{})
@@ -30,9 +30,9 @@ func NewPostgresDatabase(config *config.Config) (*gorm.DB, error) {
 	return database, nil
 }
 
-// getPostgresConnectionString function creating a connection string for postgres.
+// GetPostgresConnectionString function creating a connection string for postgres.
 // Converts the config object to a string.
-func getPostgresConnectionString(config *config.Config) string {
+func GetPostgresConnectionString(config *config.Config) string {
 	return fmt.Sprintf(
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s charset=%s",
 		config.Database.Host,

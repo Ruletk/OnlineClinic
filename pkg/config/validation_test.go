@@ -1,13 +1,14 @@
-package config
+package config_test
 
 import (
+	"github.com/Ruletk/OnlineClinic/pkg/config"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
 type ConfigValidationTestSuite struct {
 	suite.Suite
-	DatabaseConfig *DatabaseConfig
+	DatabaseConfig *config.DatabaseConfig
 }
 
 func TestConfigValidation(t *testing.T) {
@@ -15,7 +16,7 @@ func TestConfigValidation(t *testing.T) {
 }
 
 func (suite *ConfigValidationTestSuite) SetupTest() {
-	suite.DatabaseConfig = &DatabaseConfig{
+	suite.DatabaseConfig = &config.DatabaseConfig{
 		Host:     "localhost",
 		Port:     5432,
 		User:     "postgres",
@@ -88,7 +89,7 @@ func (suite *ConfigValidationTestSuite) TestDatabaseValidation_EmptyCharset() {
 }
 
 func (suite *ConfigValidationTestSuite) TestDatabaseValidation_AllErrors() {
-	suite.DatabaseConfig = &DatabaseConfig{}
+	suite.DatabaseConfig = &config.DatabaseConfig{}
 	err := suite.DatabaseConfig.Validate()
 	suite.Error(err, "Expected error for all invalid fields")
 	suite.Contains(err.Error(), "database host cannot be empty", "Expected error to contain 'database host cannot be empty' message")
