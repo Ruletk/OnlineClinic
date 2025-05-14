@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package auth;
+option go_package = "github.com/Ruletk/OnlineClinic/pkg/proto";
+
+service AuthService {
+  rpc Refresh (RefreshRequest) returns (JwtResponse);
+  rpc Login (LoginRequest) returns (JwtResponse);
+  rpc Register (RegisterRequest) returns (ErrorResponse);
+  rpc SendPasswordResetMsg (PasswordResetRequest) returns (ErrorResponse);
+  rpc ConfirmEmail (ConfirmEmailRequest) returns (ErrorResponse);
+  rpc ResetPassword (ResetPasswordRequest) returns (ErrorResponse);
+  rpc Logout (LogoutRequest) returns (ErrorResponse);
+  rpc GetProfile (ProfileRequest) returns (ProfileResponse);
+}
+
+
+// Requests
+message RefreshRequest {
+  string session_token = 1;
+}
+
+message LoginRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message RegisterRequest {
+  string login = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message PasswordResetRequest {
+  string email = 1;
+}
+
+message ConfirmEmailRequest {
+    string token = 1;
+}
+
+message ResetPasswordRequest {
+    string token = 1;
+    string new_password = 2;
+}
+
+message LogoutRequest {
+    string session_token = 1;
+}
+
+message ProfileRequest {
+    string user_id = 1;
+}
+
+
+// Responses
+message JwtResponse {
+  string jwt_access = 1;
+}
+
+message ErrorResponse {
+  string err = 1;
+}
+
+message ProfileResponse {
+    string login = 1;
+    string email = 2;
+    string created_at = 3;
+    repeated string roles = 4;
+}
