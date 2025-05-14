@@ -2,6 +2,7 @@ package config_test
 
 import (
 	"github.com/Ruletk/OnlineClinic/pkg/config"
+	"github.com/Ruletk/OnlineClinic/pkg/config/logging"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
@@ -99,4 +100,70 @@ func (suite *ConfigValidationTestSuite) TestDatabaseValidation_AllErrors() {
 	suite.Contains(err.Error(), "database name cannot be empty", "Expected error to contain 'database name cannot be empty' message")
 	suite.Contains(err.Error(), "database sslmode cannot be empty", "Expected error to contain 'database sslmode cannot be empty' message")
 	suite.Contains(err.Error(), "database charset cannot be empty", "Expected error to contain 'database charset cannot be empty' message")
+}
+
+type LoggerConfigValidationTestSuite struct {
+	suite.Suite
+	ValidConfig *config.LoggerConfig
+}
+
+func TestLoggerConfigValidation(t *testing.T) {
+	suite.Run(t, new(LoggerConfigValidationTestSuite))
+}
+
+func (suite *LoggerConfigValidationTestSuite) SetupTest() {
+	suite.ValidConfig = &config.LoggerConfig{
+		Level:        "info",
+		Format:       "json",
+		EnableCaller: true,
+		LoggerName:   "test-logger",
+	}
+}
+
+func (suite *LoggerConfigValidationTestSuite) TestValidLevels() {
+	validLevels := []string{"debug", "INFO", "WARN", "error", "FATAL"}
+	for _, level := range validLevels {
+		cfg := *suite.ValidConfig
+		cfg.Level = logging.LoggerLevel(level)
+		suite.NoError(cfg.Validate())
+	}
+}
+
+func (suite *LoggerConfigValidationTestSuite) TestInvalidLevel() {
+	cfg := *suite.ValidConfig
+	cfg.Level = "invalid_level"
+	suite.Error(cfg.Validate())
+}
+
+func (suite *LoggerConfigValidationTestSuite) TestEmptyLevel() {
+	cfg := *suite.ValidConfig
+	cfg.Level = ""
+	suite.Error(cfg.Validate())
+}
+
+func (suite *LoggerConfigValidationTestSuite) TestValidFormats() {
+	validFormats := []string{"json", "TEXT"}
+	for _, format := range validFormats {
+		cfg := *suite.ValidConfig
+		cfg.Format = logging.LoggerFormat(format)
+		suite.NoError(cfg.Validate())
+	}
+}
+
+func (suite *LoggerConfigValidationTestSuite) TestInvalidFormat() {
+	cfg := *suite.ValidConfig
+	cfg.Format = "yaml"
+	suite.Error(cfg.Validate())
+}
+
+func (suite *LoggerConfigValidationTestSuite) TestEmptyFormat() {
+	cfg := *suite.ValidConfig
+	cfg.Format = ""
+	suite.Error(cfg.Validate())
+}
+
+func (suite *LoggerConfigValidationTestSuite) TestEmptyLoggerName() {
+	cfg := *suite.ValidConfig
+	cfg.LoggerName = ""
+	suite.Error(cfg.Validate())
 }
