@@ -13,4 +13,5 @@ use (
 	./pkg/config
 	./pkg/database
 	pkg/logging
+	pkg/proto
 )
