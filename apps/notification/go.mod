@@ -3,6 +3,7 @@ module notification
 go 1.23.8
 
 require (
+	github.com/Ruletk/OnlineClinic/pkg/config v0.0.0-00010101000000-000000000000
 	github.com/Ruletk/OnlineClinic/pkg/logging v0.0.0-00010101000000-000000000000
 	github.com/Ruletk/OnlineClinic/pkg/proto v0.0.0-00010101000000-000000000000
 	github.com/nats-io/nats.go v1.42.0
@@ -10,7 +11,6 @@ require (
 )
 
 require (
-	github.com/Ruletk/OnlineClinic/pkg/config v0.0.0-00010101000000-000000000000 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
