@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"notification/internal/repositories/email"
+)
 
 func main() {
-	fmt.Println("Hello World!")
+	emailSender := email.NewMockEmailSender()
+
+	fmt.Println("Hello World!", emailSender)
 }
