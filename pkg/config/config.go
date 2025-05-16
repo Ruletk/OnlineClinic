@@ -37,5 +37,5 @@ type LoggerConfig struct {
 }
 
 type NatsConfig struct {
-	Url string
+	Url string // NATS server URL
 }
