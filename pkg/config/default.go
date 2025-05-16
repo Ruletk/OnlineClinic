@@ -30,7 +30,7 @@ func GetDefaultConfiguration() (*Config, error) {
 
 	loggerEnableCaller := GetEnvWithDefault("LOGGER_ENABLE_CALLER", "true")
 
-	natsUrl := getEnvWithDefault("NATS_URL", "nats://localhost:4222")
+	natsUrl := GetEnvWithDefault("NATS_URL", "nats://localhost:4222")
 
 	appPortInt, err := strconv.Atoi(appPort)
 	if err != nil {
@@ -88,7 +88,7 @@ func GetDefaultConfiguration() (*Config, error) {
 	}
 
 	if err := natsConfig.Validate(); err != nil {
-		return nil, fmt.Errorf("invalid nats configuration: %w", err)
+		return nil, fmt.Errorf("invalid NATS configuration: %w", err)
 	}
 
 	return &Config{
