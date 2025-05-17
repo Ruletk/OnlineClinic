@@ -34,6 +34,10 @@ func main() {
 	}))
 
 	natsConn, err := nats.Connect(cfg.Nats.Url)
+	if err != nil {
+		logging.Logger.WithError(err).Error("Failed to connect to NATS. Disabling NATS features.")
+		natsConn = nil
+	}
 	db, err := database.NewPostgresDatabase(cfg)
 	if err != nil {
 		logging.Logger.WithError(err).Fatal("Failed to connect to the database")
