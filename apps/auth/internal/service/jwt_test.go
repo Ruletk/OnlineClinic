@@ -3,7 +3,8 @@ package service
 import (
 	"auth/internal/repository"
 	"fmt"
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/config"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"testing"
 	"time"
 
@@ -23,7 +24,13 @@ func TestJwtServiceTestSuite(t *testing.T) {
 }
 
 func (suite *JwtServiceTestSuite) SetupTest() {
-	logging.InitTestLogger()
+	cfg := &config.Config{
+		Logger: config.LoggerConfig{
+			LoggerName: "test_jwt",
+			TestMode:   true,
+		},
+	}
+	logging.InitLogger(*cfg)
 	suite.secret = "testsecret"
 	suite.algo = jwt.SigningMethodHS256
 	suite.service = NewJwtService(suite.algo, suite.secret)

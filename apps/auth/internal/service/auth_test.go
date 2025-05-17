@@ -3,9 +3,11 @@ package service
 import (
 	"auth/internal/messages"
 	"auth/internal/repository"
-	"auth/mocks"
+	repositorymock "auth/mock/repository"
+	servicemock "auth/mock/service"
 	"errors"
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/config"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -15,10 +17,9 @@ import (
 
 type AuthServiceTestSuite struct {
 	suite.Suite
-	authRepo       *mocks.MockAuthRepository
-	sessionService *mocks.MockSessionService
-	jwtService     *mocks.MockJwtService
-	emailService   *mocks.MockEmailService
+	authRepo       *repositorymock.MockAuthRepository
+	sessionService *servicemock.MockSessionService
+	jwtService     *servicemock.MockJwtService
 	service        AuthService
 }
 
@@ -27,12 +28,16 @@ func TestAuthService(t *testing.T) {
 }
 
 func (suite *AuthServiceTestSuite) SetupTest() {
-	logging.InitTestLogger()
-	suite.authRepo = new(mocks.MockAuthRepository)
-	suite.sessionService = new(mocks.MockSessionService)
-	suite.jwtService = new(mocks.MockJwtService)
-	suite.emailService = new(mocks.MockEmailService)
-	suite.service = NewAuthService(suite.authRepo, suite.sessionService, suite.jwtService, suite.emailService)
+	logging.InitLogger(config.Config{
+		Logger: config.LoggerConfig{
+			LoggerName: "test_auth",
+			TestMode:   true,
+		},
+	})
+	suite.authRepo = repositorymock.NewMockAuthRepository(suite.T())
+	suite.sessionService = servicemock.NewMockSessionService(suite.T())
+	suite.jwtService = servicemock.NewMockJwtService(suite.T())
+	suite.service = NewAuthService(suite.authRepo, suite.sessionService, suite.jwtService)
 }
 
 func (suite *AuthServiceTestSuite) TestLogin_Success() {
@@ -128,7 +133,6 @@ func (suite *AuthServiceTestSuite) TestRegister_Success() {
 	suite.authRepo.On("GetByEmail", req.Email).Return(nil, gorm.ErrRecordNotFound)
 	suite.authRepo.On("Create", mock.AnythingOfType("*repository.Auth")).Return(nil)
 	suite.jwtService.On("GenerateVerificationToken", mock.AnythingOfType("int64")).Return("verificationtoken", nil)
-	suite.emailService.On("SendVerificationEmail", req.Email, "verificationtoken").Return(nil)
 
 	resp, err := suite.service.Register(req)
 
@@ -177,7 +181,6 @@ func (suite *AuthServiceTestSuite) TestRegister_VerificationEmailFailure() {
 	suite.authRepo.On("GetByEmail", req.Email).Return(nil, gorm.ErrRecordNotFound)
 	suite.authRepo.On("Create", mock.AnythingOfType("*repository.Auth")).Return(nil)
 	suite.jwtService.On("GenerateVerificationToken", mock.AnythingOfType("int64")).Return("verificationtoken", nil)
-	suite.emailService.On("SendVerificationEmail", req.Email, "verificationtoken").Return(errors.New("email send failure"))
 
 	resp, err := suite.service.Register(req)
 
@@ -220,14 +223,12 @@ func (suite *AuthServiceTestSuite) TestSendVerificationEmail_Success() {
 
 	suite.authRepo.On("GetByEmail", email).Return(user, nil)
 	suite.jwtService.On("GenerateVerificationToken", user.ID).Return("verificationtoken", nil)
-	suite.emailService.On("SendVerificationEmail", email, "verificationtoken").Return(nil)
 
 	err := suite.service.SendVerificationEmail(email)
 
 	suite.NoError(err)
 	suite.authRepo.AssertCalled(suite.T(), "GetByEmail", email)
 	suite.jwtService.AssertCalled(suite.T(), "GenerateVerificationToken", user.ID)
-	suite.emailService.AssertCalled(suite.T(), "SendVerificationEmail", email, "verificationtoken")
 }
 
 func (suite *AuthServiceTestSuite) TestSendVerificationEmail_UserNotFound() {
@@ -289,7 +290,6 @@ func (suite *AuthServiceTestSuite) TestSendVerificationEmail_EmailSendingFailure
 
 	suite.authRepo.On("GetByEmail", email).Return(user, nil)
 	suite.jwtService.On("GenerateVerificationToken", user.ID).Return("verificationtoken", nil)
-	suite.emailService.On("SendVerificationEmail", email, "verificationtoken").Return(expectedError)
 
 	err := suite.service.SendVerificationEmail(email)
 
@@ -297,7 +297,6 @@ func (suite *AuthServiceTestSuite) TestSendVerificationEmail_EmailSendingFailure
 	suite.Equal(expectedError, err)
 	suite.authRepo.AssertCalled(suite.T(), "GetByEmail", email)
 	suite.jwtService.AssertCalled(suite.T(), "GenerateVerificationToken", user.ID)
-	suite.emailService.AssertCalled(suite.T(), "SendVerificationEmail", email, "verificationtoken")
 }
 
 func (suite *AuthServiceTestSuite) TestChangePassword_Success() {
@@ -311,14 +310,12 @@ func (suite *AuthServiceTestSuite) TestChangePassword_Success() {
 
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
 	suite.jwtService.On("GeneratePasswordResetToken", user.ID).Return("resettoken", nil)
-	suite.emailService.On("SendPasswordResetEmail", req.Email, "resettoken").Return(nil)
 
 	err := suite.service.ChangePassword(req)
 
 	suite.NoError(err)
 	suite.authRepo.AssertCalled(suite.T(), "GetByEmail", req.Email)
 	suite.jwtService.AssertCalled(suite.T(), "GeneratePasswordResetToken", user.ID)
-	suite.emailService.AssertCalled(suite.T(), "SendPasswordResetEmail", req.Email, "resettoken")
 }
 
 func (suite *AuthServiceTestSuite) TestChangePassword_UserNotFound() {
@@ -368,15 +365,12 @@ func (suite *AuthServiceTestSuite) TestChangePassword_EmailSendingFailure() {
 
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
 	suite.jwtService.On("GeneratePasswordResetToken", user.ID).Return("resettoken", nil)
-	suite.emailService.On("SendPasswordResetEmail", req.Email, "resettoken").Return(expectedError)
-
 	err := suite.service.ChangePassword(req)
 
 	suite.Error(err)
 	suite.Equal(expectedError, err)
 	suite.authRepo.AssertCalled(suite.T(), "GetByEmail", req.Email)
 	suite.jwtService.AssertCalled(suite.T(), "GeneratePasswordResetToken", user.ID)
-	suite.emailService.AssertCalled(suite.T(), "SendPasswordResetEmail", req.Email, "resettoken")
 }
 
 func (suite *AuthServiceTestSuite) TestResetPassword_Success() {

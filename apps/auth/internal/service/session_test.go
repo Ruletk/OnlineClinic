@@ -2,9 +2,10 @@ package service
 
 import (
 	"auth/internal/repository"
-	"auth/mocks"
+	repository_mock "auth/mock/repository"
 	"errors"
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/config"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"testing"
 	"time"
 
@@ -16,7 +17,7 @@ import (
 // Test Suite
 type SessionServiceTestSuite struct {
 	suite.Suite
-	mockRepo *mocks.MockSessionRepo
+	mockRepo *repository_mock.MockSessionRepository
 	service  sessionService
 }
 
@@ -24,14 +25,17 @@ func TestSessionService(t *testing.T) {
 	suite.Run(t, new(SessionServiceTestSuite))
 }
 
-// Настройка перед каждым тестом
 func (suite *SessionServiceTestSuite) SetupTest() {
-	logging.InitTestLogger()
-	suite.mockRepo = new(mocks.MockSessionRepo)
+	logging.InitLogger(config.Config{
+		Logger: config.LoggerConfig{
+			LoggerName: "test_session",
+			TestMode:   true,
+		},
+	})
+	suite.mockRepo = repository_mock.NewMockSessionRepository(suite.T())
 	suite.service = sessionService{sessionRepo: suite.mockRepo}
 }
 
-// Тесты для CreateSession
 func (suite *SessionServiceTestSuite) TestCreateSession_Success() {
 	expectedUser := &repository.Auth{ID: 123}
 	expectedToken := "test_token_123"
@@ -45,10 +49,8 @@ func (suite *SessionServiceTestSuite) TestCreateSession_Success() {
 		s.SessionKey = expectedToken
 	})
 
-	// Act
 	response, err := suite.service.CreateSession(expectedUser)
 
-	// Assert
 	suite.NoError(err)
 	suite.Equal(expectedToken, response.Token)
 	suite.mockRepo.AssertExpectations(suite.T())

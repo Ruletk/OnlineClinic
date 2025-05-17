@@ -1,16 +1,16 @@
 package service
 
 import (
-	"auth/mocks"
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	repositorymock "auth/mock/repository"
+	"github.com/Ruletk/OnlineClinic/pkg/config"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
-// Test Suite
 type RoleServiceTestSuite struct {
 	suite.Suite
-	mockRepo *mocks.MockRoleRepository
+	mockRepo *repositorymock.MockRoleRepository
 	service  RoleService
 }
 
@@ -18,9 +18,13 @@ func TestRoleService(t *testing.T) {
 	suite.Run(t, new(RoleServiceTestSuite))
 }
 
-// Настройка перед каждым тестом
 func (suite *RoleServiceTestSuite) SetupTest() {
-	logging.InitTestLogger()
-	suite.mockRepo = new(mocks.MockRoleRepository)
+	logging.InitLogger(config.Config{
+		Logger: config.LoggerConfig{
+			LoggerName: "test_role",
+			TestMode:   true,
+		},
+	})
+	suite.mockRepo = repositorymock.NewMockRoleRepository(suite.T())
 	suite.service = &roleService{roleRepository: suite.mockRepo}
 }
