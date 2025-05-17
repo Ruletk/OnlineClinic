@@ -98,3 +98,16 @@ func (c *LoggerConfig) Validate() error {
 	}
 	return nil
 }
+
+func (c *NatsConfig) Validate() error {
+	var errs []error
+
+	if c.Url == "" {
+		errs = append(errs, fmt.Errorf("nats url cannot be empty"))
+	}
+
+	if len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+	return nil
+}

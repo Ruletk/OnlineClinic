@@ -1,0 +1,28 @@
+dir: ./mock
+filename: "{{.InterfaceName}}_mock.go"
+structname: "Mock{{.InterfaceName}}"
+pkgname: "{{.SrcPackageName}}_mock"
+log-level: info
+formatter: goimports
+force-file-write: true
+packages:
+  auth/internal/service:
+    config:
+      dir: ./mock/service
+    interfaces:
+      JwtService:
+      AuthService:
+      RoleService:
+      SessionService:
+  auth/internal/repository:
+    config:
+      dir: ./mock/repository
+    interfaces:
+      AuthRepository:
+      RoleRepository:
+      SessionRepository:
+  auth/internal/nats:
+    config:
+      dir: ./mock/nats
+    interfaces:
+      Publisher:

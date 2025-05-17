@@ -30,6 +30,8 @@ func GetDefaultConfiguration() (*Config, error) {
 
 	loggerEnableCaller := GetEnvWithDefault("LOGGER_ENABLE_CALLER", "true")
 
+	natsUrl := getEnvWithDefault("NATS_URL", "nats://localhost:4222")
+
 	appPortInt, err := strconv.Atoi(appPort)
 	if err != nil {
 		return nil, fmt.Errorf("invalid APP_PORT value: %w", err)
@@ -69,6 +71,10 @@ func GetDefaultConfiguration() (*Config, error) {
 		LoggerName:   loggerName,
 	}
 
+	natsConfig := NatsConfig{
+		Url: natsUrl,
+	}
+
 	if err := dbConfig.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid database configuration: %w", err)
 	}
@@ -81,10 +87,15 @@ func GetDefaultConfiguration() (*Config, error) {
 		return nil, fmt.Errorf("invalid backend configuration: %w", err)
 	}
 
+	if err := natsConfig.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid nats configuration: %w", err)
+	}
+
 	return &Config{
 		Database: dbConfig,
 		Backend:  backendConfig,
 		Logger:   loggerConfig,
+		Nats:     natsConfig,
 	}, nil
 }
 

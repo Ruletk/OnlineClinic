@@ -9,6 +9,7 @@ type Config struct {
 	Database DatabaseConfig
 	Backend  BackendConfig
 	Logger   LoggerConfig
+	Nats     NatsConfig
 }
 
 type DatabaseConfig struct {
@@ -33,4 +34,8 @@ type LoggerConfig struct {
 	Output       io.Writer
 	TestMode     bool
 	LoggerName   string
+}
+
+type NatsConfig struct {
+	Url string
 }
