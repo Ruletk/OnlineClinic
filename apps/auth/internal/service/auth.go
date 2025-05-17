@@ -30,15 +30,13 @@ type authService struct {
 	authRepo       repository.AuthRepository
 	sessionService SessionService
 	jwtService     JwtService
-	emailService   EmailService
 }
 
-func NewAuthService(authRepo repository.AuthRepository, sessionService SessionService, jwtService JwtService, emailService EmailService) AuthService {
+func NewAuthService(authRepo repository.AuthRepository, sessionService SessionService, jwtService JwtService) AuthService {
 	return &authService{
 		authRepo:       authRepo,
 		sessionService: sessionService,
 		jwtService:     jwtService,
-		emailService:   emailService,
 	}
 }
 
@@ -151,7 +149,8 @@ func (a authService) sendVerificationEmail(user *repository.Auth) error {
 	}
 	logging.Logger.Debug("Token generated: ", token[:10], ". Sending verification email...")
 
-	err = a.emailService.SendVerificationEmail(user.Email, token)
+	// TODO: Add async nats message to send email
+	//err = a.emailService.SendVerificationEmail(user.Email, token)
 	if err != nil {
 		logging.Logger.WithError(err).Error("Failed to send verification email.")
 		return err
@@ -176,8 +175,12 @@ func (a authService) ChangePassword(req *messages.PasswordChangeRequest) error {
 		return err
 	}
 
+	// Just to avoid unused variable error
+	_ = token // TODO: Remove this line when the email service is implemented
+
 	logging.Logger.Debug("Sending password reset email...")
-	err = a.emailService.SendPasswordResetEmail(user.Email, token)
+	// TODO: Add async nats message to send email
+	//err = a.emailService.SendPasswordResetEmail(user.Email, token)
 	if err != nil {
 		logging.Logger.WithError(err).Error("Failed to send password reset email.")
 		return err

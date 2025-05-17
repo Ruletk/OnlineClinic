@@ -4,7 +4,6 @@ import (
 	"auth/internal/messages"
 	"auth/internal/service"
 	"errors"
-	"github.com/Ruletk/GoMarketplace/pkg/authorization"
 	"github.com/Ruletk/GoMarketplace/pkg/logging"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -22,7 +21,7 @@ func NewAuthAPI(authService service.AuthService, sessionService service.SessionS
 	return &AuthAPI{authService: authService, sessionService: sessionService, roleService: roleService}
 }
 
-func (api *AuthAPI) RegisterRoutes(router *gin.RouterGroup, rbac *authorization.RBAC) {
+func (api *AuthAPI) RegisterRoutes(router *gin.RouterGroup) {
 	logging.Logger.Info("Registering public routes")
 	router.GET("/verify/:token", api.Verify)
 	router.GET("/refresh", api.Refresh)
@@ -34,13 +33,13 @@ func (api *AuthAPI) RegisterRoutes(router *gin.RouterGroup, rbac *authorization.
 	router.POST("/change-password/:token", api.ChangePasswordWithToken)
 
 	logging.Logger.Info("Registering private routes")
-	router.GET("/logout", rbac.AuthMiddleware(), api.Logout) // Required authentication
-	router.DELETE("/admin/sessions/hard-delete", rbac.AuthMiddleware("auth.sessions.delete"), api.HardDeleteSessions)
-	router.DELETE("/admin/sessions/delete-inactive", rbac.AuthMiddleware("auth.sessions.delete"), api.DeleteInactiveSessions)
-	router.POST("/role", rbac.AuthMiddleware("auth.role.create"), api.CreateRole)
-	router.DELETE("/role", rbac.AuthMiddleware("auth.role.delete"), api.DeleteRole)
-	router.POST("/role/assign", rbac.AuthMiddleware("auth.role.assign"), api.AssignUserToRole)
-	router.POST("/role/unassign", rbac.AuthMiddleware("auth.role.assign"), api.UnassignUserFromRole)
+	router.GET("/logout", api.Logout) // Required authentication
+	router.DELETE("/admin/sessions/hard-delete", api.HardDeleteSessions)
+	router.DELETE("/admin/sessions/delete-inactive", api.DeleteInactiveSessions)
+	router.POST("/role", api.CreateRole)
+	router.DELETE("/role", api.DeleteRole)
+	router.POST("/role/assign", api.AssignUserToRole)
+	router.POST("/role/unassign", api.UnassignUserFromRole)
 }
 
 func (api *AuthAPI) Login(c *gin.Context) {
