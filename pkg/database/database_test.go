@@ -32,7 +32,7 @@ func (suite *DatabaseTestSuite) SetupTest() {
 
 func (suite *DatabaseTestSuite) TestConfigConversion() {
 	connectionString := database.GetPostgresConnectionString(suite.Config)
-	expectedString := "host=localhost port=5432 user=postgres password=password dbname=test_db sslmode=disable charset=utf8"
+	expectedString := "host=localhost port=5432 user=postgres password=password dbname=test_db sslmode=disable"
 
 	suite.Equal(expectedString, connectionString, "The connection string should match the expected format")
 }
