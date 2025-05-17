@@ -21,3 +21,8 @@ packages:
       AuthRepository:
       RoleRepository:
       SessionRepository:
+  auth/internal/nats:
+    config:
+      dir: ./mock/nats
+    interfaces:
+      Publisher:
