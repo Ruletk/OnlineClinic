@@ -5,6 +5,7 @@ import (
 	nats2 "auth/internal/nats"
 	"auth/internal/repository"
 	"auth/internal/service"
+	"context"
 	"fmt"
 	"github.com/Ruletk/OnlineClinic/pkg/config"
 	"github.com/Ruletk/OnlineClinic/pkg/database"
@@ -13,10 +14,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/nats-io/nats.go"
+	"github.com/redis/go-redis/v9"
 	"strconv"
 )
 
 func main() {
+	mainContext, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	cfg, err := config.GetDefaultConfiguration()
 	if err != nil {
 		fmt.Printf("Error loading configuration: %v\n", err)
@@ -51,6 +56,12 @@ func main() {
 		panic(err) // Also, the initialization of the app failed, without a database we can't do anything
 	}
 
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "",
+		DB:       0,
+	})
+
 	logging.Logger.Debug("Starting repositories")
 	natsPublisher := nats2.NewPublisher(natsConn)
 	logging.Logger.Debugf("NATS publisher: %T", natsPublisher)
@@ -60,6 +71,8 @@ func main() {
 	logging.Logger.Debugf("Session repo: %T", sessionRepo)
 	roleRepo := repository.NewRoleRepository(db)
 	logging.Logger.Debugf("Role repo: %T", roleRepo)
+	redisStorage := repository.NewRedisStorage(redisClient, mainContext)
+	logging.Logger.Debugf("Redis storage: %T", redisStorage)
 	logging.Logger.Debugf("Started repositories. AuthRepo: %T, SessionRepo: %T, RoleRepo: %T", authRepo, sessionRepo, roleRepo)
 
 	logging.Logger.Debug("Starting services")
@@ -69,7 +82,7 @@ func main() {
 
 	roleService := service.NewRoleService(roleRepo)
 	sessionService := service.NewSessionService(sessionRepo)
-	authService := service.NewAuthService(authRepo, sessionService, jwtService, natsPublisher)
+	authService := service.NewAuthService(authRepo, sessionService, jwtService, natsPublisher, redisStorage)
 	logging.Logger.Debugf("Started services. Auth: %T, Session: %T, Role: %T", authService, sessionService, roleService)
 
 	logging.Logger.Debug("Starting controllers")

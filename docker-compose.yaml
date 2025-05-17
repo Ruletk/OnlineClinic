@@ -28,6 +28,16 @@ services:
     networks:
       internal:
 
+  redis:
+    image: redis:8.0.1
+    container_name: redis
+    environment:
+      - TZ=Asia/Aqtobe
+      - REDIS_PASSWORD=
+      - REDIS_PORT=6379
+    networks:
+      internal:
+
   appointment:
     build:
       context: .
