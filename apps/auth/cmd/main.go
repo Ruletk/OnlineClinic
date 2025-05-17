@@ -2,6 +2,7 @@ package main
 
 import (
 	"auth/internal/api"
+	nats2 "auth/internal/nats"
 	"auth/internal/repository"
 	"auth/internal/service"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/nats-io/nats.go"
 )
 
 func main() {
@@ -31,12 +33,14 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	natsConn, err := nats.Connect(cfg.Nats.Url)
 	db, err := database.NewPostgresDatabase(cfg)
 	if err != nil {
 		logging.Logger.WithError(err).Fatal("Failed to connect to the database")
 		panic(err) // Also, the initialization of the app failed, without a database we can't do anything
 	}
 
+	natsPublisher := nats2.NewPublisher(natsConn)
 	authRepo := repository.NewAuthRepository(db)
 	sessionRepo := repository.NewSessionRepository(db)
 	roleRepo := repository.NewRoleRepository(db)
@@ -47,7 +51,7 @@ func main() {
 
 	roleService := service.NewRoleService(roleRepo)
 	sessionService := service.NewSessionService(sessionRepo)
-	authService := service.NewAuthService(authRepo, sessionService, jwtService)
+	authService := service.NewAuthService(authRepo, sessionService, jwtService, natsPublisher)
 
 	authAPI := api.NewAuthAPI(authService, sessionService, roleService)
 

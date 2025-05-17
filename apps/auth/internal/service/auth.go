@@ -2,6 +2,7 @@ package service
 
 import (
 	"auth/internal/messages"
+	"auth/internal/nats"
 	"auth/internal/repository"
 	"errors"
 	"github.com/Ruletk/GoMarketplace/pkg/logging"
@@ -30,13 +31,15 @@ type authService struct {
 	authRepo       repository.AuthRepository
 	sessionService SessionService
 	jwtService     JwtService
+	natsPublisher  *nats.Publisher
 }
 
-func NewAuthService(authRepo repository.AuthRepository, sessionService SessionService, jwtService JwtService) AuthService {
+func NewAuthService(authRepo repository.AuthRepository, sessionService SessionService, jwtService JwtService, natsPublisher *nats.Publisher) AuthService {
 	return &authService{
 		authRepo:       authRepo,
 		sessionService: sessionService,
 		jwtService:     jwtService,
+		natsPublisher:  natsPublisher,
 	}
 }
 
@@ -149,8 +152,7 @@ func (a authService) sendVerificationEmail(user *repository.Auth) error {
 	}
 	logging.Logger.Debug("Token generated: ", token[:10], ". Sending verification email...")
 
-	// TODO: Add async nats message to send email
-	//err = a.emailService.SendVerificationEmail(user.Email, token)
+	err = a.natsPublisher.PublishEmailMessage(user.Email, "Verification email", token)
 	if err != nil {
 		logging.Logger.WithError(err).Error("Failed to send verification email.")
 		return err
@@ -160,7 +162,7 @@ func (a authService) sendVerificationEmail(user *repository.Auth) error {
 	return nil
 }
 
-// ChangePassword requests a password change for a user. Link is sent to the user's email
+// RequestChangePassword requests a password change for a user. Link is sent to the user's email
 func (a authService) RequestChangePassword(req *messages.PasswordChangeRequest) error {
 	logging.Logger.Debug("Sending changing password request for user with email: ", req.Email, "...")
 	user, err := a.authRepo.GetByEmail(req.Email)
@@ -175,12 +177,8 @@ func (a authService) RequestChangePassword(req *messages.PasswordChangeRequest) 
 		return err
 	}
 
-	// Just to avoid unused variable error
-	_ = token // TODO: Remove this line when the email service is implemented
-
 	logging.Logger.Debug("Sending password reset email...")
-	// TODO: Add async nats message to send email
-	//err = a.emailService.SendPasswordResetEmail(user.Email, token)
+	err = a.natsPublisher.PublishEmailMessage(user.Email, "Password reset", token)
 	if err != nil {
 		logging.Logger.WithError(err).Error("Failed to send password reset email.")
 		return err
