@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"auth/pkg/utils"
 	"github.com/Ruletk/GoMarketplace/pkg/logging"
 	"gorm.io/gorm"
 	"time"
@@ -30,7 +29,9 @@ func (Session) TableName() string {
 func NewSession(user *Auth) *Session {
 
 	return &Session{
-		SessionKey: utils.GenerateRandomString(64),
+		//SessionKey: utils.GenerateRandomString(64),
+		// TODO: Generate a random string for the session key
+		SessionKey: "random string",
 		LastUsed:   time.Unix(0, 0),
 		ExpiresAt:  time.Now().Add(time.Second * SessionTTL),
 		CreatedAt:  time.Now(),
