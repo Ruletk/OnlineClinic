@@ -17,8 +17,8 @@ type AuthService interface {
 	Register(req *messages.AuthRequest) (resp *messages.ApiResponse, err error)
 	Logout(token string) error
 	SendVerificationEmail(email string) error
-	ChangePassword(req *messages.PasswordChangeRequest) error
-	ResetPassword(req *messages.PasswordChange, token string) error
+	RequestChangePassword(req *messages.PasswordChangeRequest) error
+	ChangePassword(req *messages.PasswordChange, token string) error
 	VerifyUser(token string) error
 	GetUserData(userID int64) (*messages.AuthDataResponse, error)
 	Refresh(token string) (string, error)
@@ -161,7 +161,7 @@ func (a authService) sendVerificationEmail(user *repository.Auth) error {
 }
 
 // ChangePassword requests a password change for a user. Link is sent to the user's email
-func (a authService) ChangePassword(req *messages.PasswordChangeRequest) error {
+func (a authService) RequestChangePassword(req *messages.PasswordChangeRequest) error {
 	logging.Logger.Debug("Sending changing password request for user with email: ", req.Email, "...")
 	user, err := a.authRepo.GetByEmail(req.Email)
 	if err != nil {
@@ -191,7 +191,7 @@ func (a authService) ChangePassword(req *messages.PasswordChangeRequest) error {
 }
 
 // ResetPassword resets the password for a user
-func (a authService) ResetPassword(req *messages.PasswordChange, token string) error {
+func (a authService) ChangePassword(req *messages.PasswordChange, token string) error {
 	// Verify token
 	logging.Logger.Info("Resetting password for token: ", token[:10], "...")
 	valid, userID := a.jwtService.IsPasswordResetToken(token)

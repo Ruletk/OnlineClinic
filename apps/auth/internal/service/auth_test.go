@@ -311,7 +311,7 @@ func (suite *AuthServiceTestSuite) TestChangePassword_Success() {
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
 	suite.jwtService.On("GeneratePasswordResetToken", user.ID).Return("resettoken", nil)
 
-	err := suite.service.ChangePassword(req)
+	err := suite.service.RequestChangePassword(req)
 
 	suite.NoError(err)
 	suite.authRepo.AssertCalled(suite.T(), "GetByEmail", req.Email)
@@ -325,7 +325,7 @@ func (suite *AuthServiceTestSuite) TestChangePassword_UserNotFound() {
 
 	suite.authRepo.On("GetByEmail", req.Email).Return(nil, gorm.ErrRecordNotFound)
 
-	err := suite.service.ChangePassword(req)
+	err := suite.service.RequestChangePassword(req)
 
 	suite.Error(err)
 	suite.Equal(gorm.ErrRecordNotFound, err)
@@ -345,7 +345,7 @@ func (suite *AuthServiceTestSuite) TestChangePassword_TokenGenerationFailure() {
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
 	suite.jwtService.On("GeneratePasswordResetToken", user.ID).Return("", expectedError)
 
-	err := suite.service.ChangePassword(req)
+	err := suite.service.RequestChangePassword(req)
 
 	suite.Error(err)
 	suite.Equal(expectedError, err)
@@ -365,7 +365,7 @@ func (suite *AuthServiceTestSuite) TestChangePassword_EmailSendingFailure() {
 
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
 	suite.jwtService.On("GeneratePasswordResetToken", user.ID).Return("resettoken", nil)
-	err := suite.service.ChangePassword(req)
+	err := suite.service.RequestChangePassword(req)
 
 	suite.Error(err)
 	suite.Equal(expectedError, err)
@@ -388,7 +388,7 @@ func (suite *AuthServiceTestSuite) TestResetPassword_Success() {
 	suite.authRepo.On("Update", mock.AnythingOfType("*repository.Auth")).Return(nil)
 	suite.jwtService.On("DeleteToken", token).Return(nil)
 
-	err := suite.service.ResetPassword(req, token)
+	err := suite.service.ChangePassword(req, token)
 
 	suite.NoError(err)
 	suite.jwtService.AssertCalled(suite.T(), "IsPasswordResetToken", token)
@@ -405,7 +405,7 @@ func (suite *AuthServiceTestSuite) TestResetPassword_InvalidToken() {
 
 	suite.jwtService.On("IsPasswordResetToken", token).Return(false, int64(0))
 
-	err := suite.service.ResetPassword(req, token)
+	err := suite.service.ChangePassword(req, token)
 
 	suite.Error(err)
 	suite.Equal(jwt.ErrTokenInvalidClaims, err)
@@ -422,7 +422,7 @@ func (suite *AuthServiceTestSuite) TestResetPassword_UserNotFound() {
 	suite.jwtService.On("IsPasswordResetToken", token).Return(true, userID)
 	suite.authRepo.On("GetByID", userID).Return(nil, gorm.ErrRecordNotFound)
 
-	err := suite.service.ResetPassword(req, token)
+	err := suite.service.ChangePassword(req, token)
 
 	suite.Error(err)
 	suite.Equal(gorm.ErrRecordNotFound, err)
@@ -445,7 +445,7 @@ func (suite *AuthServiceTestSuite) TestResetPassword_UpdateFailure() {
 	suite.authRepo.On("GetByID", userID).Return(user, nil)
 	suite.authRepo.On("Update", mock.AnythingOfType("*repository.Auth")).Return(expectedError)
 
-	err := suite.service.ResetPassword(req, token)
+	err := suite.service.ChangePassword(req, token)
 
 	suite.Error(err)
 	suite.Equal(expectedError, err)
@@ -470,7 +470,7 @@ func (suite *AuthServiceTestSuite) TestResetPassword_DeleteTokenFailure() {
 	suite.authRepo.On("Update", mock.AnythingOfType("*repository.Auth")).Return(nil)
 	suite.jwtService.On("DeleteToken", token).Return(expectedError)
 
-	err := suite.service.ResetPassword(req, token)
+	err := suite.service.ChangePassword(req, token)
 
 	suite.Error(err)
 	suite.Equal(expectedError, err)

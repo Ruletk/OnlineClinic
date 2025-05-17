@@ -85,16 +85,16 @@ func (_c *MockAuthService_AddRoleToUser_Call) RunAndReturn(run func(userID int64
 }
 
 // ChangePassword provides a mock function for the type MockAuthService
-func (_mock *MockAuthService) ChangePassword(req *messages.PasswordChangeRequest) error {
-	ret := _mock.Called(req)
+func (_mock *MockAuthService) ChangePassword(req *messages.PasswordChange, token string) error {
+	ret := _mock.Called(req, token)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ChangePassword")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(*messages.PasswordChangeRequest) error); ok {
-		r0 = returnFunc(req)
+	if returnFunc, ok := ret.Get(0).(func(*messages.PasswordChange, string) error); ok {
+		r0 = returnFunc(req, token)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -108,13 +108,14 @@ type MockAuthService_ChangePassword_Call struct {
 
 // ChangePassword is a helper method to define mock.On call
 //   - req
-func (_e *MockAuthService_Expecter) ChangePassword(req interface{}) *MockAuthService_ChangePassword_Call {
-	return &MockAuthService_ChangePassword_Call{Call: _e.mock.On("ChangePassword", req)}
+//   - token
+func (_e *MockAuthService_Expecter) ChangePassword(req interface{}, token interface{}) *MockAuthService_ChangePassword_Call {
+	return &MockAuthService_ChangePassword_Call{Call: _e.mock.On("ChangePassword", req, token)}
 }
 
-func (_c *MockAuthService_ChangePassword_Call) Run(run func(req *messages.PasswordChangeRequest)) *MockAuthService_ChangePassword_Call {
+func (_c *MockAuthService_ChangePassword_Call) Run(run func(req *messages.PasswordChange, token string)) *MockAuthService_ChangePassword_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*messages.PasswordChangeRequest))
+		run(args[0].(*messages.PasswordChange), args[1].(string))
 	})
 	return _c
 }
@@ -124,7 +125,7 @@ func (_c *MockAuthService_ChangePassword_Call) Return(err error) *MockAuthServic
 	return _c
 }
 
-func (_c *MockAuthService_ChangePassword_Call) RunAndReturn(run func(req *messages.PasswordChangeRequest) error) *MockAuthService_ChangePassword_Call {
+func (_c *MockAuthService_ChangePassword_Call) RunAndReturn(run func(req *messages.PasswordChange, token string) error) *MockAuthService_ChangePassword_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -448,48 +449,47 @@ func (_c *MockAuthService_RemoveRoleFromUser_Call) RunAndReturn(run func(userID 
 	return _c
 }
 
-// ResetPassword provides a mock function for the type MockAuthService
-func (_mock *MockAuthService) ResetPassword(req *messages.PasswordChange, token string) error {
-	ret := _mock.Called(req, token)
+// RequestChangePassword provides a mock function for the type MockAuthService
+func (_mock *MockAuthService) RequestChangePassword(req *messages.PasswordChangeRequest) error {
+	ret := _mock.Called(req)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ResetPassword")
+		panic("no return value specified for RequestChangePassword")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(*messages.PasswordChange, string) error); ok {
-		r0 = returnFunc(req, token)
+	if returnFunc, ok := ret.Get(0).(func(*messages.PasswordChangeRequest) error); ok {
+		r0 = returnFunc(req)
 	} else {
 		r0 = ret.Error(0)
 	}
 	return r0
 }
 
-// MockAuthService_ResetPassword_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ResetPassword'
-type MockAuthService_ResetPassword_Call struct {
+// MockAuthService_RequestChangePassword_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RequestChangePassword'
+type MockAuthService_RequestChangePassword_Call struct {
 	*mock.Call
 }
 
-// ResetPassword is a helper method to define mock.On call
+// RequestChangePassword is a helper method to define mock.On call
 //   - req
-//   - token
-func (_e *MockAuthService_Expecter) ResetPassword(req interface{}, token interface{}) *MockAuthService_ResetPassword_Call {
-	return &MockAuthService_ResetPassword_Call{Call: _e.mock.On("ResetPassword", req, token)}
+func (_e *MockAuthService_Expecter) RequestChangePassword(req interface{}) *MockAuthService_RequestChangePassword_Call {
+	return &MockAuthService_RequestChangePassword_Call{Call: _e.mock.On("RequestChangePassword", req)}
 }
 
-func (_c *MockAuthService_ResetPassword_Call) Run(run func(req *messages.PasswordChange, token string)) *MockAuthService_ResetPassword_Call {
+func (_c *MockAuthService_RequestChangePassword_Call) Run(run func(req *messages.PasswordChangeRequest)) *MockAuthService_RequestChangePassword_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*messages.PasswordChange), args[1].(string))
+		run(args[0].(*messages.PasswordChangeRequest))
 	})
 	return _c
 }
 
-func (_c *MockAuthService_ResetPassword_Call) Return(err error) *MockAuthService_ResetPassword_Call {
+func (_c *MockAuthService_RequestChangePassword_Call) Return(err error) *MockAuthService_RequestChangePassword_Call {
 	_c.Call.Return(err)
 	return _c
 }
 
-func (_c *MockAuthService_ResetPassword_Call) RunAndReturn(run func(req *messages.PasswordChange, token string) error) *MockAuthService_ResetPassword_Call {
+func (_c *MockAuthService_RequestChangePassword_Call) RunAndReturn(run func(req *messages.PasswordChangeRequest) error) *MockAuthService_RequestChangePassword_Call {
 	_c.Call.Return(run)
 	return _c
 }

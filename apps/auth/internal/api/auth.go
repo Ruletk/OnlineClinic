@@ -199,7 +199,7 @@ func (api *AuthAPI) ChangePassword(c *gin.Context) {
 
 	// Send an email with a token to the user
 	logging.Logger.Info("Changing password for email: " + req.Email)
-	err = api.authService.ChangePassword(&req)
+	err = api.authService.RequestChangePassword(&req)
 	if err == nil {
 		logging.Logger.Info("Password change sent for email: " + req.Email)
 		domain := string([]rune(req.Email)[strings.Index(req.Email, "@")+1:])
@@ -239,7 +239,7 @@ func (api *AuthAPI) ChangePasswordWithToken(c *gin.Context) {
 	}
 
 	// Change the password
-	err = api.authService.ResetPassword(&req, token)
+	err = api.authService.ChangePassword(&req, token)
 	if err == nil {
 		logging.Logger.Info("Password changed successfully")
 		c.JSON(http.StatusOK, messages.ApiResponse{
