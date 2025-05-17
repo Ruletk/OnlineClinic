@@ -15,12 +15,18 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - internal
+      internal:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 1s
       timeout: 1s
       retries: 100
+
+  nats:
+    image: nats:2.11.3
+    container_name: nats
+    networks:
+      internal:
 
   appointment:
     build:
@@ -44,11 +50,21 @@ services:
     restart: always
     environment:
       - TZ=Asia/Aqtobe
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - APP_PORT=8000
+      - LOGGER_LEVEL=debug
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      internal:
+    ports:
+      - "8000:8000"
 
   doctor:
     build:

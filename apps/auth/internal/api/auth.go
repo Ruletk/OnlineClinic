@@ -4,7 +4,7 @@ import (
 	"auth/internal/messages"
 	"auth/internal/service"
 	"errors"
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"

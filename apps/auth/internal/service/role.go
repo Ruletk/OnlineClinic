@@ -2,7 +2,7 @@ package service
 
 import (
 	"auth/internal/repository"
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 )
 
 type RoleService interface {

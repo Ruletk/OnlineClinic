@@ -2,7 +2,7 @@ package nats
 
 import (
 	"fmt"
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/Ruletk/OnlineClinic/pkg/proto/utils/gen/email"
 	"github.com/nats-io/nats.go"
 	"google.golang.org/protobuf/proto"
@@ -17,6 +17,7 @@ type NatsPublisher struct {
 }
 
 func NewPublisher(nc *nats.Conn) Publisher {
+	logging.Logger.Debug("Creating NATS publisher. I am not nil")
 	return &NatsPublisher{nc: nc}
 }
 

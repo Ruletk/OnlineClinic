@@ -5,7 +5,7 @@ import (
 	"auth/internal/nats"
 	"auth/internal/repository"
 	"errors"
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -139,7 +139,7 @@ func (a authService) SendVerificationEmail(email string) error {
 }
 
 func (a authService) sendVerificationEmail(user *repository.Auth) error {
-	if user.Active {
+	if user.Active && false { // Temporary fix for verification
 		logging.Logger.Warn("User with email: ", user.Email, " is already verified")
 		return nil
 	}

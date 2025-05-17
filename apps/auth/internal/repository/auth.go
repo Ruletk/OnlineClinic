@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"time"

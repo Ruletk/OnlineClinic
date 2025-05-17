@@ -5,7 +5,7 @@ package service
 
 import (
 	"auth/internal/repository"
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )

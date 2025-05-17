@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/Ruletk/GoMarketplace/pkg/logging"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"gorm.io/gorm"
 	"time"
 )
