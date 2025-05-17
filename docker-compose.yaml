@@ -94,6 +94,28 @@ services:
       - DATABASE_PORT=5432
       - DATABASE_NAME=postgres
 
+  notification:
+    build:
+      context: .
+      dockerfile: apps/notification/Dockerfile
+    container_name: notification
+    restart: always
+    environment:
+      - TZ=Asia/Aqtobe
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=postgres
+      - NATS_URL=nats://nats:4222
+      - LOGGER_LEVEL=debug
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      internal:
+
+
   patient:
     build:
       context: .

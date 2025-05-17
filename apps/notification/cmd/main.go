@@ -1,15 +1,12 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	config2 "github.com/Ruletk/OnlineClinic/pkg/config"
 	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/nats-io/nats.go"
 	"notification/internal/repositories/email"
 	"notification/internal/subscribers"
-	"os/signal"
-	"syscall"
 )
 
 func main() {
@@ -21,23 +18,12 @@ func main() {
 	logging.InitLogger(*config)
 	logging.Logger.Infof("Starting Notification Service")
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-
-	if err := startApp(ctx, config); err != nil {
-		logging.Logger.Errorf("Application error: %v", err)
-	}
-
-	logging.Logger.Warn("Shutting down gracefully...")
-	logging.Logger.Info("Service stopped")
-}
-
-func startApp(ctx context.Context, config *config2.Config) error {
 	emailSender := email.NewMockEmailSender()
-
+	logging.Logger.Debugf("Creating NATS connection: %s", config.Nats.Url)
 	conn, err := nats.Connect(config.Nats.Url, nats.Name("Notification Service"))
 	if err != nil {
-		return fmt.Errorf("failed to connect to NATS: %w", err)
+		logging.Logger.WithError(err).Error("Failed to connect to NATS")
+		panic(err)
 	}
 	defer conn.Close()
 
@@ -46,8 +32,9 @@ func startApp(ctx context.Context, config *config2.Config) error {
 
 	logging.Logger.Info("NATS subscriber initialized and running")
 
-	<-ctx.Done()
+	// Просто ждем сигнала завершения
+	wait := make(chan struct{})
+	<-wait
 
-	logging.Logger.Info("Context cancelled, shutting down NATS service")
-	return nil
+	logging.Logger.Info("Service stopped")
 }

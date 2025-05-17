@@ -24,7 +24,7 @@ func NewNatsService(client *nats.Conn, emailSender email.Sender) *NatsService {
 }
 
 func (n *NatsService) InitNatsSubscriber() {
-	_, err := n.client.Subscribe("email", n.emailSubscriber)
+	_, err := n.client.Subscribe("email.message", n.emailSubscriber)
 	if err != nil {
 		logging.Logger.Error("Failed to subscribe to NATS topic: %v", err)
 		return
