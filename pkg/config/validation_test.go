@@ -266,3 +266,30 @@ func (suite *BackendConfigValidationTestSuite) TestInvalidPort_SuccessTooHigh() 
 	err := suite.ValidConfig.Validate()
 	suite.NoError(err, "Expected no error for valid port")
 }
+
+type NatsConfigValidationTestSuite struct {
+	suite.Suite
+	ValidConfig *config.NatsConfig
+}
+
+func TestNatsConfigValidation(t *testing.T) {
+	suite.Run(t, new(NatsConfigValidationTestSuite))
+}
+
+func (suite *NatsConfigValidationTestSuite) SetupTest() {
+	suite.ValidConfig = &config.NatsConfig{
+		Url: "nats://localhost:4222",
+	}
+}
+
+func (suite *NatsConfigValidationTestSuite) TestValidUrl() {
+	cfg := *suite.ValidConfig
+	cfg.Url = "nats://localhost:4222"
+	suite.NoError(cfg.Validate())
+}
+
+func (suite *NatsConfigValidationTestSuite) TestEmptyUrl() {
+	cfg := *suite.ValidConfig
+	cfg.Url = ""
+	suite.Error(cfg.Validate())
+}
