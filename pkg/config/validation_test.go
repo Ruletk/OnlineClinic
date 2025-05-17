@@ -12,7 +12,7 @@ type DatabaseConfigValidationTestSuite struct {
 	DatabaseConfig *config.DatabaseConfig
 }
 
-func TestConfigValidation(t *testing.T) {
+func TestDatabaseConfigValidation(t *testing.T) {
 	suite.Run(t, new(DatabaseConfigValidationTestSuite))
 }
 
@@ -231,6 +231,7 @@ func (suite *BackendConfigValidationTestSuite) TestInvalidListenAddress_FailureS
 	suite.ValidConfig.ListenAddress = "invalid address"
 	err := suite.ValidConfig.Validate()
 	suite.Error(err, "Expected error for invalid listen address")
+	suite.Contains(err.Error(), "backend listen address cannot contain spaces", "Expected error to contain 'backend listen address cannot contain spaces' message")
 }
 
 func (suite *BackendConfigValidationTestSuite) TestInvalidPort_Failure() {
@@ -254,7 +255,7 @@ func (suite *BackendConfigValidationTestSuite) TestInvalidPort_FailureNegative()
 	suite.Contains(err.Error(), "backend listen port must be greater than 0", "Expected error to contain 'backend listen port must be greater than 0' message")
 }
 
-func (suite *BackendConfigValidationTestSuite) TestInvalidPort_Success() {
+func (suite *BackendConfigValidationTestSuite) TestValidPort_Success() {
 	suite.ValidConfig.ListenPort = 8080
 	err := suite.ValidConfig.Validate()
 	suite.NoError(err, "Expected no error for valid port")

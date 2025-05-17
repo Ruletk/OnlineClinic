@@ -22,8 +22,12 @@ func GetDefaultConfiguration() (*Config, error) {
 	loggerName := GetEnvWithDefault("LOGGER_NAME", "default")
 	loggerLevel := GetEnvWithDefault("LOGGER_LEVEL", "info")
 	loggerFormat := GetEnvWithDefault("LOGGER_FORMAT", "json")
+
 	// TODO: Make logger output configurable. For now, it is hardcoded to stdout.
+	// This is not important part, but it's good to have.
+	// I temporarily commented out the loggerOutput variable to avoid confusion.
 	//loggerOutput := getEnvWithDefault("LOGGER_OUTPUT", "stdout")
+
 	loggerEnableCaller := GetEnvWithDefault("LOGGER_ENABLE_CALLER", "true")
 
 	appPortInt, err := strconv.Atoi(appPort)
