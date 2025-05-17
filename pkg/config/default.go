@@ -8,23 +8,27 @@ import (
 )
 
 func GetDefaultConfiguration() (*Config, error) {
-	appPort := getEnvWithDefault("APP_PORT", "8080")
-	appHost := getEnvWithDefault("APP_HOST", "0.0.0.0")
+	appPort := GetEnvWithDefault("APP_PORT", "8080")
+	appHost := GetEnvWithDefault("APP_HOST", "0.0.0.0")
 
-	dbHost := getEnvWithDefault("DB_HOST", "localhost")
-	dbPort := getEnvWithDefault("DB_PORT", "5432")
-	dbUser := getEnvWithDefault("DB_USER", "postgres")
-	dbPassword := getEnvWithDefault("DB_PASSWORD", "postgres")
-	dbName := getEnvWithDefault("DB_NAME", "postgres")
-	dbSSLMode := getEnvWithDefault("DB_SSL_MODE", "disable")
-	dbCharset := getEnvWithDefault("DB_CHARSET", "utf8")
+	dbHost := GetEnvWithDefault("DB_HOST", "localhost")
+	dbPort := GetEnvWithDefault("DB_PORT", "5432")
+	dbUser := GetEnvWithDefault("DB_USER", "postgres")
+	dbPassword := GetEnvWithDefault("DB_PASSWORD", "postgres")
+	dbName := GetEnvWithDefault("DB_NAME", "postgres")
+	dbSSLMode := GetEnvWithDefault("DB_SSL_MODE", "disable")
+	dbCharset := GetEnvWithDefault("DB_CHARSET", "utf8")
 
-	loggerName := getEnvWithDefault("LOGGER_NAME", "default")
-	loggerLevel := getEnvWithDefault("LOGGER_LEVEL", "info")
-	loggerFormat := getEnvWithDefault("LOGGER_FORMAT", "json")
+	loggerName := GetEnvWithDefault("LOGGER_NAME", "default")
+	loggerLevel := GetEnvWithDefault("LOGGER_LEVEL", "info")
+	loggerFormat := GetEnvWithDefault("LOGGER_FORMAT", "json")
+
 	// TODO: Make logger output configurable. For now, it is hardcoded to stdout.
+	// This is not important part, but it's good to have.
+	// I temporarily commented out the loggerOutput variable to avoid confusion.
 	//loggerOutput := getEnvWithDefault("LOGGER_OUTPUT", "stdout")
-	loggerEnableCaller := getEnvWithDefault("LOGGER_ENABLE_CALLER", "true")
+
+	loggerEnableCaller := GetEnvWithDefault("LOGGER_ENABLE_CALLER", "true")
 
 	appPortInt, err := strconv.Atoi(appPort)
 	if err != nil {
@@ -84,8 +88,8 @@ func GetDefaultConfiguration() (*Config, error) {
 	}, nil
 }
 
-func getEnvWithDefault(key, defaultValue string) string {
-	if value, exists := os.LookupEnv(key); exists {
+func GetEnvWithDefault(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists && value != "" {
 		return value
 	}
 	return defaultValue
