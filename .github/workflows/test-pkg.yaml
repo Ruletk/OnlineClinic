@@ -35,9 +35,9 @@ jobs:
 
       - name: Run tests for all pkg modules
         run: |
-          for dir in ./pkg/*; do
-            if [ -f "$dir/go.mod" ]; then
-              echo "Running tests in $dir"
-              (cd "$dir" && go mod download && go test ./...)
-            fi
-          done
+          set -e
+          find ./pkg -type f -name "go.mod" -execdir sh -c '
+            dir=$(dirname "{}")
+            echo "Running tests in $dir"
+            (cd "$dir" && go mod download && go test ./...)
+          ' \;
