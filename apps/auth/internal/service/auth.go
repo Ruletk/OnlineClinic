@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+	"time"
 )
 
 var ErrInvalidCredentials = errors.New("invalid credentials")
@@ -32,14 +33,16 @@ type authService struct {
 	sessionService SessionService
 	jwtService     JwtService
 	natsPublisher  nats.Publisher
+	storage        repository.Storage
 }
 
-func NewAuthService(authRepo repository.AuthRepository, sessionService SessionService, jwtService JwtService, natsPublisher nats.Publisher) AuthService {
+func NewAuthService(authRepo repository.AuthRepository, sessionService SessionService, jwtService JwtService, natsPublisher nats.Publisher, storage repository.Storage) AuthService {
 	return &authService{
 		authRepo:       authRepo,
 		sessionService: sessionService,
 		jwtService:     jwtService,
 		natsPublisher:  natsPublisher,
+		storage:        storage,
 	}
 }
 
@@ -275,13 +278,31 @@ func (a authService) Refresh(token string) (string, error) {
 		logging.Logger.WithError(err).Error("Failed to get user ID by token.")
 		return "", err
 	}
+	var newToken string
 
-	newToken, err := a.jwtService.GenerateAccessToken(session.User)
+	logging.Logger.Debug("Session found for user: ", session.User.ID)
+
+	newToken, err = a.storage.Get(token)
+	if err == nil {
+		logging.Logger.Debug("Token found in storage: ", newToken[:10])
+		return newToken, nil
+	}
+	logging.Logger.WithError(err).Debug("Token not found in storage: ", token[:10])
+
+	newToken, err = a.jwtService.GenerateAccessToken(session.User)
 	if err != nil {
 		logging.Logger.WithError(err).Error("Failed to generate access token.")
 		return "", err
 	}
 
+	logging.Logger.Debug("Access token generated: ", newToken[:10])
+	err = a.storage.Push(token, newToken, 180*time.Second)
+	if err != nil {
+		logging.Logger.WithError(err).Error("Failed to push token to storage.")
+		return "", err
+	}
+
+	logging.Logger.Debug("Token pushed to storage: ", newToken[:10])
 	return newToken, nil
 }
 

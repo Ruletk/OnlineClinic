@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/redis/go-redis/v9"
 	"time"
 )
@@ -54,8 +55,10 @@ func (r RedisStorage) Pop(key string) (string, error) {
 }
 
 func (r RedisStorage) Get(key string) (string, error) {
+	logging.Logger.Debug("Getting value from redis with key: ", key)
 	res, err := r.rdb.Get(r.ctx, key).Result()
 	if err != nil {
+		logging.Logger.WithError(err).Error("Failed to get value from redis with key: ", key)
 		return "", err
 	}
 	return res, nil
@@ -93,6 +96,6 @@ func (r RedisStorage) Clear() error {
 	return nil
 }
 
-func NewRedisStorage(rdb *redis.Client) Storage {
-	return &RedisStorage{rdb: rdb}
+func NewRedisStorage(rdb *redis.Client, ctx context.Context) Storage {
+	return &RedisStorage{rdb: rdb, ctx: ctx}
 }
