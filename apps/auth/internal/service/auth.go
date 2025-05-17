@@ -31,10 +31,10 @@ type authService struct {
 	authRepo       repository.AuthRepository
 	sessionService SessionService
 	jwtService     JwtService
-	natsPublisher  *nats.Publisher
+	natsPublisher  nats.Publisher
 }
 
-func NewAuthService(authRepo repository.AuthRepository, sessionService SessionService, jwtService JwtService, natsPublisher *nats.Publisher) AuthService {
+func NewAuthService(authRepo repository.AuthRepository, sessionService SessionService, jwtService JwtService, natsPublisher nats.Publisher) AuthService {
 	return &authService{
 		authRepo:       authRepo,
 		sessionService: sessionService,

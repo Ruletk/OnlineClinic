@@ -3,6 +3,7 @@ package service
 import (
 	"auth/internal/messages"
 	"auth/internal/repository"
+	natsmock "auth/mock/nats"
 	repositorymock "auth/mock/repository"
 	servicemock "auth/mock/service"
 	"errors"
@@ -20,6 +21,7 @@ type AuthServiceTestSuite struct {
 	authRepo       *repositorymock.MockAuthRepository
 	sessionService *servicemock.MockSessionService
 	jwtService     *servicemock.MockJwtService
+	natsPublisher  *natsmock.MockPublisher
 	service        AuthService
 }
 
@@ -37,7 +39,8 @@ func (suite *AuthServiceTestSuite) SetupTest() {
 	suite.authRepo = repositorymock.NewMockAuthRepository(suite.T())
 	suite.sessionService = servicemock.NewMockSessionService(suite.T())
 	suite.jwtService = servicemock.NewMockJwtService(suite.T())
-	suite.service = NewAuthService(suite.authRepo, suite.sessionService, suite.jwtService)
+	suite.natsPublisher = natsmock.NewMockPublisher(suite.T())
+	suite.service = NewAuthService(suite.authRepo, suite.sessionService, suite.jwtService, suite.natsPublisher)
 }
 
 func (suite *AuthServiceTestSuite) TestLogin_Success() {
