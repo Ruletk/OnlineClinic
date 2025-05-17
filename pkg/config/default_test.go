@@ -102,5 +102,5 @@ func (suite *DefaultConfigTestSuite) TestDefaultConfig_LoggerConfig_Invalid() {
 func (suite *DefaultConfigTestSuite) TestDefaultConfig_DatabaseConfig_Invalid() {
 	_ = os.Setenv("DB_PORT", "70000")
 	_, err := GetDefaultConfiguration()
-	suite.Error(err, "Expected error when DB_HOST is invalid")
+	suite.Error(err, "Expected error when DB_PORT is invalid")
 }
