@@ -1,4 +1,4 @@
-.PHONY: tidy proto-auth clean-proto-auth
+.PHONY: tidy proto-auth clean-proto-auth test-pkg
 
 
 tidy:
@@ -44,4 +44,16 @@ clean-proto-auth:
 	@rm -rf pkg/proto/gen/auth
 
 
-
+test-pkg:
+	@echo "Running tests..."
+ifeq ($(OS),Windows_NT)
+	@for /d %%d in (pkg\*) do @if exist %%d\go.mod ( \
+		echo Testing pkg/%%~nxd & \
+		pushd %%d & go mod download & go test -v ./... & popd \
+	)
+else
+	@find ./pkg -name "go.mod" -exec dirname {} \; | while read dir; do \
+		echo "Testing $$dir"; \
+		(cd "$$dir" && go test -v ./...); \
+	done
+endif
