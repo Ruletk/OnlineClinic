@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"gorm.io/gorm"
+	"math/rand"
 	"time"
 )
 
@@ -29,9 +30,7 @@ func (Session) TableName() string {
 func NewSession(user *Auth) *Session {
 
 	return &Session{
-		//SessionKey: utils.GenerateRandomString(64),
-		// TODO: Generate a random string for the session key
-		SessionKey: "random string",
+		SessionKey: GenerateRandomString(64),
 		LastUsed:   time.Unix(0, 0),
 		ExpiresAt:  time.Now().Add(time.Second * SessionTTL),
 		CreatedAt:  time.Now(),
@@ -142,4 +141,15 @@ func (s sessionRepository) HardDeleteAllInactive() error {
 		return err
 	}
 	return nil
+}
+
+// TODO: Move this to a separate package
+
+func GenerateRandomString(n int) string {
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }
