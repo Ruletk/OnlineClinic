@@ -6,6 +6,7 @@ import (
 	"auth/internal/repository"
 	"auth/internal/service"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/Ruletk/OnlineClinic/pkg/config"
 	"github.com/Ruletk/OnlineClinic/pkg/database"
@@ -15,11 +16,16 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
+	"golang.org/x/sync/errgroup"
+	"net/http"
+	"os/signal"
 	"strconv"
+	"syscall"
+	"time"
 )
 
 func main() {
-	mainContext, cancel := context.WithCancel(context.Background())
+	mainCtx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
 	cfg, err := config.GetDefaultConfiguration()
@@ -53,7 +59,7 @@ func main() {
 	db, err := database.NewPostgresDatabase(cfg)
 	if err != nil {
 		logging.Logger.WithError(err).Fatal("Failed to connect to the database")
-		panic(err) // Also, the initialization of the app failed, without a database we can't do anything
+		//panic(err) // Also, the initialization of the app failed, without a database we can't do anything
 	}
 
 	redisClient := redis.NewClient(&redis.Options{
@@ -64,22 +70,16 @@ func main() {
 
 	logging.Logger.Debug("Starting repositories")
 	natsPublisher := nats2.NewPublisher(natsConn)
-	logging.Logger.Debugf("NATS publisher: %T", natsPublisher)
 	authRepo := repository.NewAuthRepository(db)
-	logging.Logger.Debugf("Auth repo: %T", authRepo)
 	sessionRepo := repository.NewSessionRepository(db)
-	logging.Logger.Debugf("Session repo: %T", sessionRepo)
 	roleRepo := repository.NewRoleRepository(db)
-	logging.Logger.Debugf("Role repo: %T", roleRepo)
-	redisStorage := repository.NewRedisStorage(redisClient, mainContext)
-	logging.Logger.Debugf("Redis storage: %T", redisStorage)
+	redisStorage := repository.NewRedisStorage(redisClient, mainCtx)
 	logging.Logger.Debugf("Started repositories. AuthRepo: %T, SessionRepo: %T, RoleRepo: %T", authRepo, sessionRepo, roleRepo)
 
 	logging.Logger.Debug("Starting services")
 	// TODO: Add jwt settings to the config
 	//jwtService := service.NewJwtService(defaultConfig.Jwt.Algo, defaultConfig.Jwt.Secret)
 	jwtService := service.NewJwtService(jwt.SigningMethodHS256, "This is a secret key temp for avoid errors")
-
 	roleService := service.NewRoleService(roleRepo)
 	sessionService := service.NewSessionService(sessionRepo)
 	authService := service.NewAuthService(authRepo, sessionService, jwtService, natsPublisher, redisStorage)
@@ -87,16 +87,96 @@ func main() {
 
 	logging.Logger.Debug("Starting controllers")
 	authAPI := api.NewAuthAPI(authService, sessionService, roleService)
+	logging.Logger.Debugf("Started controllers. AuthAPI: %T", authAPI)
 
 	logging.Logger.Debug("Starting routes")
 	router := r.Group("/")
 	authAPI.RegisterRoutes(router)
+	logging.Logger.Debug("Routes registered")
 
 	logging.Logger.Debug("Starting server")
-	err = r.Run(cfg.Backend.ListenAddress + ":" + strconv.Itoa(cfg.Backend.ListenPort))
 
-	if err != nil {
-		logging.Logger.WithError(err).Error("Failed to start server")
-		panic(err) // The server failed to start
+	srv := &http.Server{
+		Addr:    cfg.Backend.ListenAddress + ":" + strconv.Itoa(cfg.Backend.ListenPort),
+		Handler: r,
+	}
+
+	// Separate shutdown context
+	shutdownCtx, shutdownCancel := context.WithTimeout(mainCtx, 10*time.Second)
+	defer shutdownCancel()
+
+	g, gCtx := errgroup.WithContext(shutdownCtx)
+	g.Go(func() error {
+		logging.Logger.Infof("Starting server on %s:%d", cfg.Backend.ListenAddress, cfg.Backend.ListenPort)
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logging.Logger.WithError(err).Error("Failed to start server")
+			return err
+		}
+		return nil
+	})
+
+	// Shutdown goroutines
+
+	g.Go(func() error {
+		<-gCtx.Done()
+		logging.Logger.Info("Shutting down gin server...")
+		if err := srv.Shutdown(gCtx); err != nil {
+			logging.Logger.WithError(err).Error("Failed to shutdown server")
+			return err
+		}
+		logging.Logger.Info("Server shutdown complete")
+		return nil
+	})
+
+	g.Go(func() error {
+		<-gCtx.Done()
+		logging.Logger.Info("Shutting down Redis connection...")
+		if redisClient == nil {
+			logging.Logger.Info("Redis client is not initialized, skipping shutdown")
+			return nil
+		}
+
+		if err := redisClient.Close(); err != nil {
+			logging.Logger.WithError(err).Error("Failed to close Redis connection")
+			return err
+		}
+		logging.Logger.Info("Redis connection shutdown complete")
+		return nil
+	})
+
+	g.Go(func() error {
+		<-gCtx.Done()
+		logging.Logger.Info("Shutting down NATS connection...")
+		if natsConn == nil {
+			logging.Logger.Info("NATS client is not initialized, skipping shutdown")
+			return nil
+		}
+
+		if err := natsConn.Drain(); err != nil {
+			logging.Logger.WithError(err).Error("Failed to flush NATS connection")
+			return err
+		}
+		logging.Logger.Info("NATS connection shutdown complete")
+		return nil
+	})
+
+	g.Go(func() error {
+		<-gCtx.Done()
+		logging.Logger.Info("Shutting down database connection...")
+		db, err := db.DB()
+		if err != nil {
+			logging.Logger.WithError(err).Error("Failed to get database connection")
+			return err
+		}
+		if err := db.Close(); err != nil {
+			logging.Logger.WithError(err).Error("Failed to close database connection")
+			return err
+		}
+		logging.Logger.Info("Database connection shutdown complete")
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		logging.Logger.WithError(err).Error("Error in main goroutine")
 	}
 }
