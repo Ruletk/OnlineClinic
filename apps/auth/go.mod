@@ -3,18 +3,19 @@ module auth
 go 1.23.8
 
 require (
-	github.com/Ruletk/GoMarketplace/pkg/authorization v1.0.1
-	github.com/Ruletk/GoMarketplace/pkg/logging v1.0.0
-	github.com/Ruletk/OnlineClinic/pkg/config v0.0.0-20250517011416-fd7ff4b9626c
+	github.com/Ruletk/OnlineClinic/pkg/config v0.0.0
+	github.com/Ruletk/OnlineClinic/pkg/database v0.0.0-20250517101029-70d60e849822
 	github.com/Ruletk/OnlineClinic/pkg/logging v0.0.0-20250517011416-fd7ff4b9626c
+	github.com/Ruletk/OnlineClinic/pkg/proto v0.0.0-00010101000000-000000000000
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/nats-io/nats.go v1.42.0
+	github.com/redis/go-redis/v9 v9.8.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/crypto v0.38.0
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gorm.io/driver/postgres v1.5.11
+	google.golang.org/protobuf v1.36.6
 	gorm.io/gorm v1.26.1
 )
 
@@ -44,12 +45,10 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/nats-io/nats.go v1.42.0 // indirect
 	github.com/nats-io/nkeys v0.4.11 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/redis/go-redis/v9 v9.8.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
@@ -58,7 +57,14 @@ require (
 	golang.org/x/sync v0.14.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
-	google.golang.org/protobuf v1.36.6 // indirect
-	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250218202821-56aae31c358a // indirect
+	google.golang.org/grpc v1.72.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/driver/postgres v1.5.11 // indirect
+)
+
+replace (
+	github.com/Ruletk/OnlineClinic/pkg/config => ../../pkg/config
+	github.com/Ruletk/OnlineClinic/pkg/logging => ../../pkg/logging
+	github.com/Ruletk/OnlineClinic/pkg/proto => ../../pkg/proto
 )
