@@ -12,7 +12,7 @@ RUN go mod download
 COPY apps/$THIS_SERVICE/ /app/apps/$THIS_SERVICE
 
 WORKDIR /app/apps/$THIS_SERVICE
-RUN ls -la . && pwd &&CGO_ENABLED=0 GOOS=linux go build -o /app/service ./cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/service ./cmd/main.go
 
 RUN chmod +x /app/service
 
