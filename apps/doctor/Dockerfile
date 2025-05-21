@@ -1,6 +1,6 @@
 FROM golang:1.23.8 as builder
 
-ARG THIS_SERVICE=auth
+ARG THIS_SERVICE=doctor
 
 WORKDIR /app
 COPY pkg/ ./pkg
