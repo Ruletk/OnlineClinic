@@ -23,6 +23,7 @@ type AuthServiceTestSuite struct {
 	jwtService     *servicemock.MockJwtService
 	natsPublisher  *natsmock.MockPublisher
 	service        AuthService
+	storage        *repositorymock.MockStorage
 }
 
 func TestAuthService(t *testing.T) {
@@ -36,11 +37,15 @@ func (suite *AuthServiceTestSuite) SetupTest() {
 			TestMode:   true,
 		},
 	})
+
 	suite.authRepo = repositorymock.NewMockAuthRepository(suite.T())
 	suite.sessionService = servicemock.NewMockSessionService(suite.T())
 	suite.jwtService = servicemock.NewMockJwtService(suite.T())
 	suite.natsPublisher = natsmock.NewMockPublisher(suite.T())
-	suite.service = NewAuthService(suite.authRepo, suite.sessionService, suite.jwtService, suite.natsPublisher)
+	suite.storage = repositorymock.NewMockStorage(suite.T())
+	suite.service = NewAuthService(
+		suite.authRepo, suite.sessionService, suite.jwtService, suite.natsPublisher, suite.storage,
+	)
 }
 
 func (suite *AuthServiceTestSuite) TestLogin_Success() {
