@@ -3,14 +3,16 @@ FROM golang:1.23.8 as builder
 ARG THIS_SERVICE=prescription
 
 WORKDIR /app
-
-COPY go.work go.work.sum ./
 COPY pkg/ ./pkg
-COPY apps/ ./apps/
 
-RUN go work sync
+WORKDIR /app/apps/$THIS_SERVICE
+COPY apps/$THIS_SERVICE/go.mod apps/$THIS_SERVICE/go.sum ./
+RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/service ./apps/$THIS_SERVICE/cmd/main.go
+COPY apps/$THIS_SERVICE/ /app/apps/$THIS_SERVICE
+
+WORKDIR /app/apps/$THIS_SERVICE
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/service ./cmd/main.go
 
 RUN chmod +x /app/service
 
