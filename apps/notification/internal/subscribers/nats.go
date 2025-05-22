@@ -26,7 +26,7 @@ func NewNatsService(client *nats.Conn, emailSender email.Sender) *NatsService {
 func (n *NatsService) InitNatsSubscriber() {
 	_, err := n.client.Subscribe("email.message", n.emailSubscriber)
 	if err != nil {
-		logging.Logger.Error("Failed to subscribe to NATS topic: %v", err)
+		logging.Logger.Errorf("Failed to subscribe to NATS topic: %v", err)
 		return
 	}
 	logging.Logger.Debug("NATS subscriber initialized successfully")
@@ -37,7 +37,7 @@ func (n *NatsService) emailSubscriber(msg *nats.Msg) {
 	logging.Logger.Debug("Received email message request")
 	var natsEmailMessage natspb.EmailMessage
 	if err := proto.Unmarshal(msg.Data, &natsEmailMessage); err != nil {
-		logging.Logger.Error("Failed to unmarshal email message: %v", err)
+		logging.Logger.Errorf("Failed to unmarshal email message: %v", err)
 		return
 	}
 	logging.Logger.Debugf("Unmarshalled email message, to: %s", natsEmailMessage.To[0:10])
@@ -47,7 +47,7 @@ func (n *NatsService) emailSubscriber(msg *nats.Msg) {
 		Message: natsEmailMessage.Message,
 	}
 	if err := n.emailSender.Send(emailMsg); err != nil {
-		logging.Logger.Error("Failed to send email: %v", err)
+		logging.Logger.Errorf("Failed to send email: %v", err)
 		return
 	}
 	logging.Logger.Infof("Email sent successfully to: %s", natsEmailMessage.To[0:10])
