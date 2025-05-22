@@ -21,6 +21,7 @@ packages:
       AuthRepository:
       RoleRepository:
       SessionRepository:
+      Storage:
   auth/internal/nats:
     config:
       dir: ./mock/nats

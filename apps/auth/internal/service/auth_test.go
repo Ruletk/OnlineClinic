@@ -10,6 +10,7 @@ import (
 	"github.com/Ruletk/OnlineClinic/pkg/config"
 	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
@@ -23,6 +24,7 @@ type AuthServiceTestSuite struct {
 	jwtService     *servicemock.MockJwtService
 	natsPublisher  *natsmock.MockPublisher
 	service        AuthService
+	storage        *repositorymock.MockStorage
 }
 
 func TestAuthService(t *testing.T) {
@@ -36,11 +38,15 @@ func (suite *AuthServiceTestSuite) SetupTest() {
 			TestMode:   true,
 		},
 	})
+
 	suite.authRepo = repositorymock.NewMockAuthRepository(suite.T())
 	suite.sessionService = servicemock.NewMockSessionService(suite.T())
 	suite.jwtService = servicemock.NewMockJwtService(suite.T())
 	suite.natsPublisher = natsmock.NewMockPublisher(suite.T())
-	suite.service = NewAuthService(suite.authRepo, suite.sessionService, suite.jwtService, suite.natsPublisher)
+	suite.storage = repositorymock.NewMockStorage(suite.T())
+	suite.service = NewAuthService(
+		suite.authRepo, suite.sessionService, suite.jwtService, suite.natsPublisher, suite.storage,
+	)
 }
 
 func (suite *AuthServiceTestSuite) TestLogin_Success() {
@@ -57,7 +63,6 @@ func (suite *AuthServiceTestSuite) TestLogin_Success() {
 
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
 	suite.sessionService.On("CreateSession", user).Return(messages.AuthResponse{Token: "sessiontoken"}, nil)
-	suite.authRepo.On("ComparePassword", req.Password).Return(true)
 
 	resp, token, err := suite.service.Login(req)
 
@@ -95,7 +100,6 @@ func (suite *AuthServiceTestSuite) TestLogin_InvalidPassword() {
 	}
 
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
-	suite.authRepo.On("ComparePassword", req.Password).Return(false)
 
 	resp, token, err := suite.service.Login(req)
 
@@ -113,12 +117,11 @@ func (suite *AuthServiceTestSuite) TestLogin_SessionCreationFailure() {
 	user := &repository.Auth{
 		ID:           1,
 		Email:        "test@example.com",
-		PasswordHash: "$2a$10$7QJ8K8Q8Q8Q8Q8Q8Q8Q8QO", // hashed password
+		PasswordHash: "$2a$10$m/qNQRwvP7X5gWvkBblXQ.8iiDqCdlWgWFD0yb4Cq3pThcU0AjkjO", // hashed password
 	}
 
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
-	suite.authRepo.On("ComparePassword", req.Password).Return(true)
-	suite.sessionService.On("CreateSession", user.ID).Return(messages.AuthResponse{}, errors.New("session creation failed"))
+	suite.sessionService.On("CreateSession", user).Return(messages.AuthResponse{}, errors.New("session creation failed"))
 
 	resp, token, err := suite.service.Login(req)
 
@@ -136,6 +139,7 @@ func (suite *AuthServiceTestSuite) TestRegister_Success() {
 	suite.authRepo.On("GetByEmail", req.Email).Return(nil, gorm.ErrRecordNotFound)
 	suite.authRepo.On("Create", mock.AnythingOfType("*repository.Auth")).Return(nil)
 	suite.jwtService.On("GenerateVerificationToken", mock.AnythingOfType("int64")).Return("verificationtoken", nil)
+	suite.natsPublisher.On("PublishEmailMessage", req.Email, "Verification email", "verificationtoken").Return(nil)
 
 	resp, err := suite.service.Register(req)
 
@@ -184,6 +188,7 @@ func (suite *AuthServiceTestSuite) TestRegister_VerificationEmailFailure() {
 	suite.authRepo.On("GetByEmail", req.Email).Return(nil, gorm.ErrRecordNotFound)
 	suite.authRepo.On("Create", mock.AnythingOfType("*repository.Auth")).Return(nil)
 	suite.jwtService.On("GenerateVerificationToken", mock.AnythingOfType("int64")).Return("verificationtoken", nil)
+	suite.natsPublisher.On("PublishEmailMessage", req.Email, "Verification email", "verificationtoken").Return(errors.New("email send failure"))
 
 	resp, err := suite.service.Register(req)
 
@@ -226,6 +231,7 @@ func (suite *AuthServiceTestSuite) TestSendVerificationEmail_Success() {
 
 	suite.authRepo.On("GetByEmail", email).Return(user, nil)
 	suite.jwtService.On("GenerateVerificationToken", user.ID).Return("verificationtoken", nil)
+	suite.natsPublisher.On("PublishEmailMessage", email, "Verification email", "verificationtoken").Return(nil)
 
 	err := suite.service.SendVerificationEmail(email)
 
@@ -293,6 +299,7 @@ func (suite *AuthServiceTestSuite) TestSendVerificationEmail_EmailSendingFailure
 
 	suite.authRepo.On("GetByEmail", email).Return(user, nil)
 	suite.jwtService.On("GenerateVerificationToken", user.ID).Return("verificationtoken", nil)
+	suite.natsPublisher.On("PublishEmailMessage", mock.Anything, mock.Anything, mock.Anything).Return(expectedError)
 
 	err := suite.service.SendVerificationEmail(email)
 
@@ -313,6 +320,7 @@ func (suite *AuthServiceTestSuite) TestChangePassword_Success() {
 
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
 	suite.jwtService.On("GeneratePasswordResetToken", user.ID).Return("resettoken", nil)
+	suite.natsPublisher.On("PublishEmailMessage", req.Email, "Password reset", "resettoken").Return(nil)
 
 	err := suite.service.RequestChangePassword(req)
 
@@ -368,6 +376,8 @@ func (suite *AuthServiceTestSuite) TestChangePassword_EmailSendingFailure() {
 
 	suite.authRepo.On("GetByEmail", req.Email).Return(user, nil)
 	suite.jwtService.On("GeneratePasswordResetToken", user.ID).Return("resettoken", nil)
+	suite.natsPublisher.On("PublishEmailMessage", mock.Anything, mock.Anything, mock.Anything).Return(expectedError)
+
 	err := suite.service.RequestChangePassword(req)
 
 	suite.Error(err)
@@ -521,6 +531,8 @@ func (suite *AuthServiceTestSuite) TestRefresh_Success() {
 
 	suite.sessionService.On("GetSession", token).Return(repository.Session{SessionKey: token, User: user}, nil)
 	suite.jwtService.On("GenerateAccessToken", user).Return(newToken, nil)
+	suite.storage.On("Get", token).Return("", redis.Nil)
+	suite.storage.On("Push", token, newToken, mock.Anything).Return(nil)
 
 	refreshedToken, err := suite.service.Refresh(token)
 
@@ -551,6 +563,7 @@ func (suite *AuthServiceTestSuite) TestRefresh_GenerateAccessTokenFailure() {
 
 	suite.sessionService.On("GetSession", token).Return(repository.Session{SessionKey: token, User: user}, nil)
 	suite.jwtService.On("GenerateAccessToken", user).Return("", expectedError)
+	suite.storage.On("Get", token).Return("", redis.Nil)
 
 	refreshedToken, err := suite.service.Refresh(token)
 

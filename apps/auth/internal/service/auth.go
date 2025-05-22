@@ -98,7 +98,7 @@ func (a authService) Register(req *messages.AuthRequest) (*messages.ApiResponse,
 		return nil, err
 	}
 
-	user := &repository.Auth{Email: req.Email}
+	user := &repository.Auth{Email: req.Email, Active: false}
 	user.PasswordHash = user.GeneratePasswordHash(req.Password)
 
 	logging.Logger.Debug("User model created: ", user)
@@ -142,7 +142,7 @@ func (a authService) SendVerificationEmail(email string) error {
 }
 
 func (a authService) sendVerificationEmail(user *repository.Auth) error {
-	if user.Active && false { // Temporary fix for verification
+	if user.Active {
 		logging.Logger.Warn("User with email: ", user.Email, " is already verified")
 		return nil
 	}
