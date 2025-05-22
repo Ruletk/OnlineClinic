@@ -1,4 +1,4 @@
-.PHONY: tidy proto-auth clean-proto-auth test-pkg
+.PHONY: tidy proto-auth clean-proto-auth test-pkg test-service
 
 
 tidy:
@@ -53,6 +53,20 @@ ifeq ($(OS),Windows_NT)
 	)
 else
 	@find ./pkg -name "go.mod" -exec dirname {} \; | while read dir; do \
+		echo "Testing $$dir"; \
+		(cd "$$dir" && go test -v ./...); \
+	done
+endif
+
+test-service:
+	@echo "Running tests for services..."
+ifeq ($(OS),Windows_NT)
+	@for /d %%d in (apps\*) do @if exist %%d\go.mod ( \
+		echo Testing apps/%%~nxd & \
+		pushd %%d & go mod download & go test -v ./... & popd \
+	)
+else
+	@find ./apps -name "go.mod" -exec dirname {} \; | while read dir; do \
 		echo "Testing $$dir"; \
 		(cd "$$dir" && go test -v ./...); \
 	done
