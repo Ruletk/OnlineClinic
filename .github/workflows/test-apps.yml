@@ -1,5 +1,4 @@
-name: Test shared packages
-
+name: Test apps/services
 on:
   push:
     branches:
@@ -33,12 +32,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-${{ matrix.go-version }}-
 
-      - name: Run tests for all pkg modules
+      - name: Run tests for all services
         run: |
           set -e
           FAILED=0
 
-          for modfile in $(find ./pkg -type f -name "go.mod"); do
+          for modfile in $(find ./apps -type f -name "go.mod"); do
             dir=$(dirname "$modfile")
             echo "Running tests in $dir"
             (
@@ -55,3 +54,4 @@ jobs:
             echo "Some tests failed"
             exit 1
           fi
+
