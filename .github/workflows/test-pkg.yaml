@@ -36,8 +36,22 @@ jobs:
       - name: Run tests for all pkg modules
         run: |
           set -e
-          find ./pkg -type f -name "go.mod" -execdir sh -c '
-            dir=$(dirname "{}")
+          FAILED=0
+
+          for modfile in $(find ./pkg -type f -name "go.mod"); do
+            dir=$(dirname "$modfile")
             echo "Running tests in $dir"
-            (cd "$dir" && go mod download && go test ./...)
-          ' \;
+            (
+              cd "$dir"
+              go mod download
+              go test ./...
+            ) || {
+              echo "Tests failed in $dir"
+              FAILED=1
+            }
+          done
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "Some tests failed"
+            exit 1
+          fi
