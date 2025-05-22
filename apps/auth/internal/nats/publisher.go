@@ -30,6 +30,7 @@ func (p *NatsPublisher) PublishEmailMessage(to, subject, message string) error {
 	})
 	if err != nil {
 		logging.Logger.WithError(err).Error("Failed to marshal email message")
+		return fmt.Errorf("failed to marshal email message: %w", err)
 	}
 	logging.Logger.Debugf("Publishing email message to NATS, email: %s", to[0:5])
 	return p.nc.Publish("email.message", data)
