@@ -5,12 +5,12 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"patient/internal/models"
-	"patient/internal/pb"
+	proto "patient/internal/proto/gen"
 	"patient/internal/services"
 )
 
 type PatientController struct {
-	UnimplementedPatientServiceServer
+	proto.UnimplementedPatientServiceServer
 	service *services.PatientService
 }
 
@@ -18,7 +18,7 @@ func NewPatientController(svc *services.PatientService) *PatientController {
 	return &PatientController{service: svc}
 }
 
-func (c *PatientController) CreatePatient(ctx context.Context, req *PatientRequest) (*PatientResponse, error) {
+func (c *PatientController) CreatePatient(ctx context.Context, req *proto.PatientRequest) (*proto.PatientResponse, error) {
 	patient := &models.Patient{
 		Name:          req.Name,
 		Age:           int(req.Age),
@@ -32,8 +32,8 @@ func (c *PatientController) CreatePatient(ctx context.Context, req *PatientReque
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &PatientResponse{
-		Id:            uint32(patient.ID),
+	return &proto.PatientResponse{
+		ID:            uint64(patient.ID),
 		Name:          patient.Name,
 		Age:           int32(patient.Age),
 		MedicalRecord: patient.MedicalRecord,

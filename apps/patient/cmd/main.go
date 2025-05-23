@@ -8,7 +8,9 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	grpcpackage "patient/internal/controllers/grpc"
 	"patient/internal/models"
+	proto "patient/internal/proto/gen"
 	"patient/internal/repositories"
 	"patient/internal/services"
 )
@@ -39,7 +41,7 @@ func main() {
 	// Инициализация слоёв
 	patientRepo := repositories.NewPatientRepository(db)
 	patientService := services.NewPatientService(patientRepo)
-	patientController := grpc.NewPatientController(patientService)
+	patientController := grpcpackage.NewPatientController(patientService)
 
 	// Запуск gRPC сервера
 	lis, err := net.Listen("tcp", ":50051")
@@ -49,7 +51,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	RegisterPatientServiceServer(s, patientController)
+	proto.RegisterPatientServiceServer(s, patientController)
 
 	log.Println("Patient Service running on :50051")
 	if err := s.Serve(lis); err != nil {
