@@ -1,8 +1,9 @@
 package model
 
+// Doctor — модель доктора, совпадает с таблицей doctors
 type Doctor struct {
-	ID        int64  `json:"id" db:"id"`
-	Name      string `json:"name" db:"name"`
-	Specialty string `json:"specialty" db:"specialty"`
-	Email     string `json:"email" db:"email"`
+    ID        uint   `gorm:"primaryKey" json:"id"`
+    Name      string `gorm:"not null" json:"name"`
+    Specialty string `gorm:"not null" json:"specialty"`
+    Email     string `gorm:"not null;unique" json:"email"`
 }
