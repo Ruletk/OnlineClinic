@@ -2,41 +2,29 @@ package main
 
 import (
 	"doctor/internal/handler"
-	"doctor/internal/model"
 	"doctor/internal/repository"
 	"doctor/internal/service"
-	"log"
-	"os"
-
+	"fmt"
+	"github.com/Ruletk/OnlineClinic/pkg/config"
+	"github.com/Ruletk/OnlineClinic/pkg/database"
+	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func main() {
-	// 1) load .env if exists
-	_ = godotenv.Load()
-
-	// 2) get DATABASE_URL, PORT
-	dsn := os.Getenv("DATABASE_URL")
-	if dsn == "" {
-		log.Fatal("DATABASE_URL must be set")
-	}
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	// 3) connect to Postgres via GORM
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// 1) init config
+	cfg, err := config.GetDefaultConfiguration()
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+		fmt.Printf("Error loading configuration: %v\n", err)
+		panic(err) // The initialization of the app failed, without a config we can't do anything
 	}
+	logging.InitLogger(*cfg)
 
-	// 4) auto-migrate Doctor model
-	if err := db.AutoMigrate(&model.Doctor{}); err != nil {
-		log.Fatalf("auto migrate failed: %v", err)
+	logging.Logger.Debug("Setting up database connection")
+	db, err := database.NewPostgresDatabase(cfg)
+	if err != nil {
+		logging.Logger.WithError(err).Fatal("Failed to connect to the database")
+		panic(err) // Also, the initialization of the app failed, without a database we can't do anything
 	}
 
 	// 5) init layers
@@ -48,9 +36,7 @@ func main() {
 	r := gin.Default()
 	h.RegisterRoutes(r)
 
-	// 7) start server
-	log.Printf("starting doctor service on :%s …", port)
-	if err := r.Run(":" + port); err != nil {
-		log.Fatalf("server stopped: %v", err)
-	}
+	logging.Logger.Debug("Setting up NATS connection")
+	logging.Logger.WithError(err).Error("Failed to connect to NATS. Disabling NATS features.")
+
 }
