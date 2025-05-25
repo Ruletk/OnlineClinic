@@ -2,12 +2,11 @@ package models
 
 import (
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"time"
 )
 
 type Patient struct {
-	ID         uuid.UUID   `gorm:"type:uuid;primaryKey"`
+	ID         int64       `gorm:"type:uuid;primaryKey"`
 	UserID     uuid.UUID   `gorm:"type:uuid;not null;index"` // Ссылка на User сервис
 	BloodType  string      `gorm:"type:varchar(5)"`          // Например: "A+", "O-"
 	Height     float64     `gorm:"type:decimal(5,2)"`        // Рост в см
