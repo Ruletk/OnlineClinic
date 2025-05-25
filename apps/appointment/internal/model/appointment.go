@@ -10,8 +10,8 @@ type Appointment struct {
 	UserID   uuid.UUID         `json:"user_id" gorm:"type:uuid;not null"`
 	DoctorID uuid.UUID         `json:"doctor_id" gorm:"type:uuid;not null"`
 	Date     time.Time         `json:"date" gorm:"not null"`
-	Status   string            `json:"status" gorm:"type:ENUM('scheduled', 'completed', 'canceled');not null;default:'scheduled'"`
-	Notes    AppointmentStatus `json:"notes" gorm:"type:text;default:null"` // Optional notes for the appointment
+	Status   AppointmentStatus `json:"status" gorm:"type:ENUM('scheduled', 'completed', 'canceled');not null;default:'scheduled'"`
+	Notes    string            `json:"notes" gorm:"type:text;default:null"` // Optional notes for the appointment
 
 	CreatedAt time.Time  `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time  `json:"updated_at" gorm:"autoUpdateTime"`
