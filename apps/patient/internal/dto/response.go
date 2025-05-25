@@ -17,6 +17,11 @@ type PatientResponse struct {
 	UpdatedAt  time.Time          `json:"updated_at"`
 }
 
+type PatientResponses struct {
+	Count    int               `json:"count"`
+	Patients []PatientResponse `json:"patients"`
+}
+
 type AllergyResponse struct {
 	ID         uuid.UUID `json:"id"`
 	PatientID  uuid.UUID `json:"patient_id"`

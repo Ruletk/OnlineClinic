@@ -9,6 +9,10 @@ type CreatePatientRequest struct {
 	Weight    float64   `json:"weight" validate:"min=0"`
 }
 
+type GetPatientRequest struct {
+	PatientID uuid.UUID `json:"patient_id" validate:"required"`
+}
+
 type UpdatePatientRequest struct {
 	BloodType string  `json:"blood_type" validate:"omitempty,oneof=A+ A- B+ B- AB+ AB- O+ O-"`
 	Height    float64 `json:"height" validate:"omitempty,min=0"`
