@@ -1,15 +1,16 @@
 package repositories
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"patient/internal/models"
 )
 
 type InsuranceRepository interface {
 	Create(insurance *models.Insurance) error
-	GetByID(id uint) (*models.Insurance, error)
+	GetByID(uuid.UUID) (*models.Insurance, error)
 	Update(insurance *models.Insurance) error
-	Delete(id uint) error
+	Delete(uuid.UUID) error
 }
 
 type InsuranceRepo struct {
@@ -24,7 +25,7 @@ func (r *InsuranceRepo) Create(insurance *models.Insurance) error {
 	return r.db.Create(insurance).Error
 }
 
-func (r *InsuranceRepo) GetByID(id uint) (*models.Insurance, error) {
+func (r *InsuranceRepo) GetByID(id uuid.UUID) (*models.Insurance, error) {
 	var insurance models.Insurance
 	if err := r.db.First(&insurance, id).Error; err != nil {
 		return nil, err
@@ -37,6 +38,6 @@ func (r *InsuranceRepo) Update(insurance *models.Insurance) error {
 
 }
 
-func (r *InsuranceRepo) Delete(id uint) error {
+func (r *InsuranceRepo) Delete(id uuid.UUID) error {
 	return r.db.Delete(&models.Insurance{}, id).Error
 }
