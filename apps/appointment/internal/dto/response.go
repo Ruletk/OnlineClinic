@@ -7,7 +7,7 @@ import (
 
 type AppointmentResponse struct {
 	ID        string                  `json:"id"`
-	UserID    string                  `json:"user_id"`
+	UserID    int64                   `json:"user_id"`
 	DoctorID  string                  `json:"doctor_id"`
 	Date      string                  `json:"date"`
 	Status    model.AppointmentStatus `json:"status"`
