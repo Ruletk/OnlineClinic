@@ -11,6 +11,7 @@ import (
 type GRPCAppointmentRepository interface {
 	CheckTimeAvailability(ctx context.Context, req *gen.CheckTimeAvailabilityRequest) (*gen.CheckTimeAvailabilityResponse, error)
 	GetAvailableSlots(ctx context.Context, req *gen.GetAvailableSlotsRequest) (*gen.GetAvailableSlotsResponse, error)
+	ChangeTimeSlot(ctx context.Context, req *gen.ChangeTimeSlotRequest) (*gen.ChangeTimeSlotResponse, error)
 }
 
 type grpcAppointmentRepository struct {
@@ -48,6 +49,18 @@ func (g *grpcAppointmentRepository) GetAvailableSlots(ctx context.Context, req *
 	defer cancel()
 
 	return g.client.GetAvailableSlots(c, req)
+}
+
+func (g *grpcAppointmentRepository) ChangeTimeSlot(ctx context.Context, req *gen.ChangeTimeSlotRequest) (*gen.ChangeTimeSlotResponse, error) {
+	logging.Logger.Infof("Changing time slot for doctor: %s, time: %s, status: %s", req.DoctorId, req.SlotTime, req.IsAvailable)
+	if err := g.checkClient(); err != nil {
+		return nil, err
+	}
+
+	c, cancel := context.WithTimeout(ctx, g.defaultTimeout)
+	defer cancel()
+
+	return g.client.ChangeTimeSlot(c, req)
 }
 
 func (g *grpcAppointmentRepository) checkClient() error {
