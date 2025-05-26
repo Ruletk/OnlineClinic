@@ -12,6 +12,8 @@ service DoctorService {
 
     // Получение списка всех свободных слотов (для отображения в UI)
     rpc GetAvailableSlots (GetAvailableSlotsRequest) returns (GetAvailableSlotsResponse);
+
+    rpc ChangeTimeSlot (ChangeTimeSlotRequest) returns (ChangeTimeSlotResponse);
 }
 
 // ===== Запрос доступности конкретного времени =====
@@ -40,4 +42,16 @@ message TimeSlot {
 
 message GetAvailableSlotsResponse {
     repeated TimeSlot slots = 1;
+}
+
+// ===== Запрос на изменение слота времени =====
+message ChangeTimeSlotRequest {
+    string doctor_id = 1;
+    google.protobuf.Timestamp slot_time = 2;
+    bool is_available = 3;  // Новый статус слота (доступен/недоступен)
+}
+
+message ChangeTimeSlotResponse {
+    bool success = 1;
+    string message = 2;  // Дополнительная информация (например, "Slot updated successfully")
 }

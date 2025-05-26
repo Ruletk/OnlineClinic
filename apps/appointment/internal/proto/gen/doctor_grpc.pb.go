@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	DoctorService_CheckTimeAvailability_FullMethodName = "/doctor.v1.DoctorService/CheckTimeAvailability"
 	DoctorService_GetAvailableSlots_FullMethodName     = "/doctor.v1.DoctorService/GetAvailableSlots"
+	DoctorService_ChangeTimeSlot_FullMethodName        = "/doctor.v1.DoctorService/ChangeTimeSlot"
 )
 
 // DoctorServiceClient is the client API for DoctorService service.
@@ -31,6 +32,7 @@ type DoctorServiceClient interface {
 	CheckTimeAvailability(ctx context.Context, in *CheckTimeAvailabilityRequest, opts ...grpc.CallOption) (*CheckTimeAvailabilityResponse, error)
 	// Получение списка всех свободных слотов (для отображения в UI)
 	GetAvailableSlots(ctx context.Context, in *GetAvailableSlotsRequest, opts ...grpc.CallOption) (*GetAvailableSlotsResponse, error)
+	ChangeTimeSlot(ctx context.Context, in *ChangeTimeSlotRequest, opts ...grpc.CallOption) (*ChangeTimeSlotResponse, error)
 }
 
 type doctorServiceClient struct {
@@ -61,6 +63,16 @@ func (c *doctorServiceClient) GetAvailableSlots(ctx context.Context, in *GetAvai
 	return out, nil
 }
 
+func (c *doctorServiceClient) ChangeTimeSlot(ctx context.Context, in *ChangeTimeSlotRequest, opts ...grpc.CallOption) (*ChangeTimeSlotResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangeTimeSlotResponse)
+	err := c.cc.Invoke(ctx, DoctorService_ChangeTimeSlot_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DoctorServiceServer is the server API for DoctorService service.
 // All implementations must embed UnimplementedDoctorServiceServer
 // for forward compatibility.
@@ -69,6 +81,7 @@ type DoctorServiceServer interface {
 	CheckTimeAvailability(context.Context, *CheckTimeAvailabilityRequest) (*CheckTimeAvailabilityResponse, error)
 	// Получение списка всех свободных слотов (для отображения в UI)
 	GetAvailableSlots(context.Context, *GetAvailableSlotsRequest) (*GetAvailableSlotsResponse, error)
+	ChangeTimeSlot(context.Context, *ChangeTimeSlotRequest) (*ChangeTimeSlotResponse, error)
 	mustEmbedUnimplementedDoctorServiceServer()
 }
 
@@ -84,6 +97,9 @@ func (UnimplementedDoctorServiceServer) CheckTimeAvailability(context.Context, *
 }
 func (UnimplementedDoctorServiceServer) GetAvailableSlots(context.Context, *GetAvailableSlotsRequest) (*GetAvailableSlotsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAvailableSlots not implemented")
+}
+func (UnimplementedDoctorServiceServer) ChangeTimeSlot(context.Context, *ChangeTimeSlotRequest) (*ChangeTimeSlotResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeTimeSlot not implemented")
 }
 func (UnimplementedDoctorServiceServer) mustEmbedUnimplementedDoctorServiceServer() {}
 func (UnimplementedDoctorServiceServer) testEmbeddedByValue()                       {}
@@ -142,6 +158,24 @@ func _DoctorService_GetAvailableSlots_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DoctorService_ChangeTimeSlot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeTimeSlotRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DoctorServiceServer).ChangeTimeSlot(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DoctorService_ChangeTimeSlot_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DoctorServiceServer).ChangeTimeSlot(ctx, req.(*ChangeTimeSlotRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DoctorService_ServiceDesc is the grpc.ServiceDesc for DoctorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -156,6 +190,10 @@ var DoctorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAvailableSlots",
 			Handler:    _DoctorService_GetAvailableSlots_Handler,
+		},
+		{
+			MethodName: "ChangeTimeSlot",
+			Handler:    _DoctorService_ChangeTimeSlot_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

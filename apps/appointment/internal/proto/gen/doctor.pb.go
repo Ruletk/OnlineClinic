@@ -292,6 +292,119 @@ func (x *GetAvailableSlotsResponse) GetSlots() []*TimeSlot {
 	return nil
 }
 
+// ===== Запрос на изменение слота времени =====
+type ChangeTimeSlotRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DoctorId      string                 `protobuf:"bytes,1,opt,name=doctor_id,json=doctorId,proto3" json:"doctor_id,omitempty"`
+	SlotTime      *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=slot_time,json=slotTime,proto3" json:"slot_time,omitempty"`
+	IsAvailable   bool                   `protobuf:"varint,3,opt,name=is_available,json=isAvailable,proto3" json:"is_available,omitempty"` // Новый статус слота (доступен/недоступен)
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeTimeSlotRequest) Reset() {
+	*x = ChangeTimeSlotRequest{}
+	mi := &file_doctor_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeTimeSlotRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeTimeSlotRequest) ProtoMessage() {}
+
+func (x *ChangeTimeSlotRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_doctor_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeTimeSlotRequest.ProtoReflect.Descriptor instead.
+func (*ChangeTimeSlotRequest) Descriptor() ([]byte, []int) {
+	return file_doctor_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ChangeTimeSlotRequest) GetDoctorId() string {
+	if x != nil {
+		return x.DoctorId
+	}
+	return ""
+}
+
+func (x *ChangeTimeSlotRequest) GetSlotTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.SlotTime
+	}
+	return nil
+}
+
+func (x *ChangeTimeSlotRequest) GetIsAvailable() bool {
+	if x != nil {
+		return x.IsAvailable
+	}
+	return false
+}
+
+type ChangeTimeSlotResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"` // Дополнительная информация (например, "Slot updated successfully")
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChangeTimeSlotResponse) Reset() {
+	*x = ChangeTimeSlotResponse{}
+	mi := &file_doctor_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChangeTimeSlotResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeTimeSlotResponse) ProtoMessage() {}
+
+func (x *ChangeTimeSlotResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_doctor_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeTimeSlotResponse.ProtoReflect.Descriptor instead.
+func (*ChangeTimeSlotResponse) Descriptor() ([]byte, []int) {
+	return file_doctor_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ChangeTimeSlotResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ChangeTimeSlotResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_doctor_proto protoreflect.FileDescriptor
 
 const file_doctor_proto_rawDesc = "" +
@@ -314,10 +427,18 @@ const file_doctor_proto_rawDesc = "" +
 	"\bend_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\x16\n" +
 	"\x06status\x18\x03 \x01(\tR\x06status\"F\n" +
 	"\x19GetAvailableSlotsResponse\x12)\n" +
-	"\x05slots\x18\x01 \x03(\v2\x13.doctor.v1.TimeSlotR\x05slots2\xdb\x01\n" +
+	"\x05slots\x18\x01 \x03(\v2\x13.doctor.v1.TimeSlotR\x05slots\"\x90\x01\n" +
+	"\x15ChangeTimeSlotRequest\x12\x1b\n" +
+	"\tdoctor_id\x18\x01 \x01(\tR\bdoctorId\x127\n" +
+	"\tslot_time\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\bslotTime\x12!\n" +
+	"\fis_available\x18\x03 \x01(\bR\visAvailable\"L\n" +
+	"\x16ChangeTimeSlotResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage2\xb2\x02\n" +
 	"\rDoctorService\x12j\n" +
 	"\x15CheckTimeAvailability\x12'.doctor.v1.CheckTimeAvailabilityRequest\x1a(.doctor.v1.CheckTimeAvailabilityResponse\x12^\n" +
-	"\x11GetAvailableSlots\x12#.doctor.v1.GetAvailableSlotsRequest\x1a$.doctor.v1.GetAvailableSlotsResponseBPZNgithub.com/Ruletk/OnlineClinic/apps/appointment/internal/proto/doctor;doctorpbb\x06proto3"
+	"\x11GetAvailableSlots\x12#.doctor.v1.GetAvailableSlotsRequest\x1a$.doctor.v1.GetAvailableSlotsResponse\x12U\n" +
+	"\x0eChangeTimeSlot\x12 .doctor.v1.ChangeTimeSlotRequest\x1a!.doctor.v1.ChangeTimeSlotResponseBPZNgithub.com/Ruletk/OnlineClinic/apps/appointment/internal/proto/doctor;doctorpbb\x06proto3"
 
 var (
 	file_doctor_proto_rawDescOnce sync.Once
@@ -331,31 +452,36 @@ func file_doctor_proto_rawDescGZIP() []byte {
 	return file_doctor_proto_rawDescData
 }
 
-var file_doctor_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_doctor_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_doctor_proto_goTypes = []any{
 	(*CheckTimeAvailabilityRequest)(nil),  // 0: doctor.v1.CheckTimeAvailabilityRequest
 	(*CheckTimeAvailabilityResponse)(nil), // 1: doctor.v1.CheckTimeAvailabilityResponse
 	(*GetAvailableSlotsRequest)(nil),      // 2: doctor.v1.GetAvailableSlotsRequest
 	(*TimeSlot)(nil),                      // 3: doctor.v1.TimeSlot
 	(*GetAvailableSlotsResponse)(nil),     // 4: doctor.v1.GetAvailableSlotsResponse
-	(*timestamppb.Timestamp)(nil),         // 5: google.protobuf.Timestamp
+	(*ChangeTimeSlotRequest)(nil),         // 5: doctor.v1.ChangeTimeSlotRequest
+	(*ChangeTimeSlotResponse)(nil),        // 6: doctor.v1.ChangeTimeSlotResponse
+	(*timestamppb.Timestamp)(nil),         // 7: google.protobuf.Timestamp
 }
 var file_doctor_proto_depIdxs = []int32{
-	5, // 0: doctor.v1.CheckTimeAvailabilityRequest.slot_time:type_name -> google.protobuf.Timestamp
-	5, // 1: doctor.v1.GetAvailableSlotsRequest.start_date:type_name -> google.protobuf.Timestamp
-	5, // 2: doctor.v1.GetAvailableSlotsRequest.end_date:type_name -> google.protobuf.Timestamp
-	5, // 3: doctor.v1.TimeSlot.start_time:type_name -> google.protobuf.Timestamp
-	5, // 4: doctor.v1.TimeSlot.end_time:type_name -> google.protobuf.Timestamp
-	3, // 5: doctor.v1.GetAvailableSlotsResponse.slots:type_name -> doctor.v1.TimeSlot
-	0, // 6: doctor.v1.DoctorService.CheckTimeAvailability:input_type -> doctor.v1.CheckTimeAvailabilityRequest
-	2, // 7: doctor.v1.DoctorService.GetAvailableSlots:input_type -> doctor.v1.GetAvailableSlotsRequest
-	1, // 8: doctor.v1.DoctorService.CheckTimeAvailability:output_type -> doctor.v1.CheckTimeAvailabilityResponse
-	4, // 9: doctor.v1.DoctorService.GetAvailableSlots:output_type -> doctor.v1.GetAvailableSlotsResponse
-	8, // [8:10] is the sub-list for method output_type
-	6, // [6:8] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	7,  // 0: doctor.v1.CheckTimeAvailabilityRequest.slot_time:type_name -> google.protobuf.Timestamp
+	7,  // 1: doctor.v1.GetAvailableSlotsRequest.start_date:type_name -> google.protobuf.Timestamp
+	7,  // 2: doctor.v1.GetAvailableSlotsRequest.end_date:type_name -> google.protobuf.Timestamp
+	7,  // 3: doctor.v1.TimeSlot.start_time:type_name -> google.protobuf.Timestamp
+	7,  // 4: doctor.v1.TimeSlot.end_time:type_name -> google.protobuf.Timestamp
+	3,  // 5: doctor.v1.GetAvailableSlotsResponse.slots:type_name -> doctor.v1.TimeSlot
+	7,  // 6: doctor.v1.ChangeTimeSlotRequest.slot_time:type_name -> google.protobuf.Timestamp
+	0,  // 7: doctor.v1.DoctorService.CheckTimeAvailability:input_type -> doctor.v1.CheckTimeAvailabilityRequest
+	2,  // 8: doctor.v1.DoctorService.GetAvailableSlots:input_type -> doctor.v1.GetAvailableSlotsRequest
+	5,  // 9: doctor.v1.DoctorService.ChangeTimeSlot:input_type -> doctor.v1.ChangeTimeSlotRequest
+	1,  // 10: doctor.v1.DoctorService.CheckTimeAvailability:output_type -> doctor.v1.CheckTimeAvailabilityResponse
+	4,  // 11: doctor.v1.DoctorService.GetAvailableSlots:output_type -> doctor.v1.GetAvailableSlotsResponse
+	6,  // 12: doctor.v1.DoctorService.ChangeTimeSlot:output_type -> doctor.v1.ChangeTimeSlotResponse
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_doctor_proto_init() }
@@ -369,7 +495,7 @@ func file_doctor_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_doctor_proto_rawDesc), len(file_doctor_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
