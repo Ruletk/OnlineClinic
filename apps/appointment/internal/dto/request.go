@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"appointment/internal/model"
 	"github.com/google/uuid"
 	"time"
 )
@@ -13,18 +14,18 @@ type CreateAppointmentRequest struct {
 }
 
 type AppointmentIDRequest struct {
-	ID string `json:"id" binding:"required,uuid"`
+	ID uuid.UUID `json:"id" binding:"required,uuid"`
 }
 
 type GetAppointmentsByUserIDRequest struct {
-	UserID string `json:"user_id" binding:"required,uuid"`
+	UserID int64 `json:"user_id" binding:"required,uuid"`
 }
 
 type GetAppointmentsByDoctorIDRequest struct {
-	DoctorID string `json:"doctor_id" binding:"required,uuid"`
+	DoctorID uuid.UUID `json:"doctor_id" binding:"required,uuid"`
 }
 
 type ChangeAppointmentStatusRequest struct {
-	ID     string `json:"id" binding:"required,uuid"`
-	Status string `json:"status" binding:"required,oneof=scheduled completed canceled"`
+	ID     uuid.UUID               `json:"id" binding:"required,uuid"`
+	Status model.AppointmentStatus `json:"status" binding:"required,oneof=scheduled completed canceled"`
 }

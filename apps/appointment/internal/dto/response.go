@@ -34,14 +34,14 @@ func AppointmentResponseFromModel(a *model.Appointment) *AppointmentResponse {
 	}
 }
 
-func AppointmentListResponseFromModel(appointments []*model.Appointment) *AppointmentListResponse {
+func AppointmentListResponseFromModel(appointments []model.Appointment) *AppointmentListResponse {
 	response := &AppointmentListResponse{
 		TotalCount:   len(appointments),
 		Appointments: make([]AppointmentResponse, len(appointments)),
 	}
 
 	for i, appointment := range appointments {
-		response.Appointments[i] = *AppointmentResponseFromModel(appointment)
+		response.Appointments[i] = *AppointmentResponseFromModel(&appointment)
 	}
 
 	return response
