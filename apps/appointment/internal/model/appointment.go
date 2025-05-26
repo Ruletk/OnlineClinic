@@ -7,7 +7,7 @@ import (
 
 type Appointment struct {
 	ID       uuid.UUID         `json:"id" gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	UserID   uuid.UUID         `json:"user_id" gorm:"type:uuid;not null"`
+	UserID   int64             `json:"user_id" gorm:"type:uuid;not null"`
 	DoctorID uuid.UUID         `json:"doctor_id" gorm:"type:uuid;not null"`
 	Date     time.Time         `json:"date" gorm:"not null"`
 	Status   AppointmentStatus `json:"status" gorm:"type:ENUM('scheduled', 'completed', 'canceled');not null;default:'scheduled'"`
