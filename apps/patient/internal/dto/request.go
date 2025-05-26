@@ -47,6 +47,10 @@ type CreateInsuranceRequest struct {
 	ExpirationDate string    `json:"expiration_date" validate:"required,datetime=2006-01-02"`
 }
 
+type UpdateInsuranceRequest struct {
+	InsuranceID uuid.UUID `json:"insurance_id" validate:"required"`
+}
+
 type DeleteInsuranceRequest struct {
 	InsuranceID uuid.UUID `json:"insurance_id" validate:"required"`
 }
