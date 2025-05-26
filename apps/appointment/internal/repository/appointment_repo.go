@@ -7,11 +7,11 @@ import (
 )
 
 type AppointmentRepository interface {
-	Create(appointment *model.Appointment) (*model.Appointment, error)
+	Create(appointment *model.Appointment) error
 	GetByID(id uuid.UUID) (*model.Appointment, error)
-	Update(appointment *model.Appointment) (*model.Appointment, error)
+	Update(appointment *model.Appointment) error
 	Delete(id uuid.UUID) error
-	ListByUserID(userID uuid.UUID) ([]model.Appointment, error)
+	ListByUserID(userID int64) ([]model.Appointment, error)
 	ListByDoctorID(doctorID uuid.UUID) ([]model.Appointment, error)
 }
 
@@ -19,11 +19,8 @@ type appointmentRepository struct {
 	db *gorm.DB
 }
 
-func (a appointmentRepository) Create(appointment *model.Appointment) (*model.Appointment, error) {
-	if err := a.db.Create(appointment).Error; err != nil {
-		return nil, err
-	}
-	return appointment, nil
+func (a appointmentRepository) Create(appointment *model.Appointment) error {
+	return a.db.Create(appointment).Error
 }
 
 func (a appointmentRepository) GetByID(id uuid.UUID) (*model.Appointment, error) {
@@ -34,18 +31,15 @@ func (a appointmentRepository) GetByID(id uuid.UUID) (*model.Appointment, error)
 	return &appointment, nil
 }
 
-func (a appointmentRepository) Update(appointment *model.Appointment) (*model.Appointment, error) {
-	if err := a.db.Save(appointment).Error; err != nil {
-		return nil, err
-	}
-	return appointment, nil
+func (a appointmentRepository) Update(appointment *model.Appointment) error {
+	return a.db.Model(&model.Appointment{}).Where("id = ?", appointment.ID).Updates(appointment).Error
 }
 
 func (a appointmentRepository) Delete(id uuid.UUID) error {
 	return a.db.Delete(&model.Appointment{}, "id = ?", id).Error
 }
 
-func (a appointmentRepository) ListByUserID(userID uuid.UUID) ([]model.Appointment, error) {
+func (a appointmentRepository) ListByUserID(userID int64) ([]model.Appointment, error) {
 	var appointments []model.Appointment
 	if err := a.db.Where("user_id = ?", userID).Find(&appointments).Error; err != nil {
 		return nil, err
