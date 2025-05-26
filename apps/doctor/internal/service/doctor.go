@@ -8,8 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-
-	"github.com/nats-io/nats.go"
 )
 
 // ErrNotFound возвращается, если врач не найден
@@ -25,12 +23,11 @@ type DoctorService interface {
 
 type doctorService struct {
 	repo repository.DoctorRepository
-	nc   *nats.Conn
 }
 
 // NewDoctorService конструктор
-func NewDoctorService(repo repository.DoctorRepository, nc *nats.Conn) DoctorService {
-	return &doctorService{repo: repo, nc: nc}
+func NewDoctorService(repo repository.DoctorRepository) DoctorService {
+	return &doctorService{repo: repo}
 }
 
 func (s *doctorService) CreateDoctor(ctx context.Context, req CreateDoctorRequest) (*CreateDoctorResponse, error) {
@@ -52,12 +49,6 @@ func (s *doctorService) CreateDoctor(ctx context.Context, req CreateDoctorReques
 
 	if err := s.repo.Create(ctx, doc); err != nil {
 		return nil, err
-	}
-
-	// Если хотите публиковать событие в NATS
-	if s.nc != nil {
-		// data, _ := json.Marshal(...)
-		// s.nc.Publish("doctor.created", data)
 	}
 
 	// Подготовим строковый указатель
