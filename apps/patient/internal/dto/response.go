@@ -2,6 +2,7 @@ package dto
 
 import (
 	"github.com/google/uuid"
+	"patient/internal/models"
 	"time"
 )
 
@@ -60,4 +61,26 @@ type PrescriptionResponse struct {
 type PrescriptionResponses struct {
 	Count         int                    `json:"count"`
 	Prescriptions []PrescriptionResponse `json:"prescriptions"`
+}
+
+func NewPrescriptionResponse(prescription *models.Prescription) *PrescriptionResponse {
+	return &PrescriptionResponse{
+		ID:         prescription.ID,
+		PatientID:  prescription.PatientID,
+		DoctorID:   prescription.DoctorID,
+		Medication: prescription.Medication,
+		Dosage:     prescription.Dosage,
+		ValidUntil: prescription.ValidUntil,
+	}
+}
+
+func NewPrescriptionResponses(prescriptions []models.Prescription) *PrescriptionResponses {
+	responses := make([]PrescriptionResponse, len(prescriptions))
+	for i, prescription := range prescriptions {
+		responses[i] = *NewPrescriptionResponse(&prescription)
+	}
+	return &PrescriptionResponses{
+		Count:         len(responses),
+		Prescriptions: responses,
+	}
 }

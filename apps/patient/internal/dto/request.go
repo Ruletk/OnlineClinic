@@ -1,6 +1,9 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type CreatePatientRequest struct {
 	UserID    uuid.UUID `json:"user_id" validate:"required"`
@@ -53,7 +56,7 @@ type CreatePrescriptionRequest struct {
 	DoctorID   uuid.UUID `json:"doctor_id" validate:"required"`
 	Medication string    `json:"medication" validate:"required"`
 	Dosage     string    `json:"dosage" validate:"required"`
-	ValidUntil string    `json:"valid_until" validate:"required,datetime=2006-01-02"`
+	ValidUntil time.Time `json:"valid_until" validate:"required,datetime=2006-01-02"`
 }
 
 type DeletePrescriptionRequest struct {
