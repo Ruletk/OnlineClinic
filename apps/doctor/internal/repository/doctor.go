@@ -1,47 +1,50 @@
 package repository
 
 import (
+	"context"
 	"doctor/internal/model"
-	"errors"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-// DoctorRepository описывает доступ к данным doctors
+// DoctorRepository описывает доступ к хранилищу врачей
 type DoctorRepository interface {
-	Create(d *model.Doctor) error
-	GetByID(id uint) (*model.Doctor, error)
-	Update(d *model.Doctor) error
-	Delete(id uint) error
+	Create(ctx context.Context, doc *model.Doctor) error
+	GetByID(ctx context.Context, id uuid.UUID) (*model.Doctor, error)
+	Update(ctx context.Context, doc *model.Doctor) error
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 type doctorRepo struct {
 	db *gorm.DB
 }
 
+// NewDoctorRepository конструктор
 func NewDoctorRepository(db *gorm.DB) DoctorRepository {
 	return &doctorRepo{db: db}
 }
 
-func (r *doctorRepo) Create(d *model.Doctor) error {
-	return r.db.Create(d).Error
+func (r *doctorRepo) Create(ctx context.Context, doc *model.Doctor) error {
+	return r.db.WithContext(ctx).Create(doc).Error
 }
 
-func (r *doctorRepo) GetByID(id uint) (*model.Doctor, error) {
-	var d model.Doctor
-	if err := r.db.First(&d, id).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
+func (r *doctorRepo) GetByID(ctx context.Context, id uuid.UUID) (*model.Doctor, error) {
+	var doc model.Doctor
+	if err := r.db.WithContext(ctx).
+		Preload("Specialization").
+		Preload("ScheduleSlots").
+		First(&doc, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
-	return &d, nil
+	return &doc, nil
 }
 
-func (r *doctorRepo) Update(d *model.Doctor) error {
-	return r.db.Save(d).Error
+func (r *doctorRepo) Update(ctx context.Context, doc *model.Doctor) error {
+	return r.db.WithContext(ctx).Save(doc).Error
 }
 
-func (r *doctorRepo) Delete(id uint) error {
-	return r.db.Delete(&model.Doctor{}, id).Error
+func (r *doctorRepo) Delete(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).
+		Delete(&model.Doctor{}, "id = ?", id).Error
 }
