@@ -1,42 +1,59 @@
 package main
 
 import (
-	"doctor/internal/handler"
-	"doctor/internal/repository"
-	"doctor/internal/service"
-	"fmt"
-	"github.com/Ruletk/OnlineClinic/pkg/config"
-	"github.com/Ruletk/OnlineClinic/pkg/database"
-	"github.com/Ruletk/OnlineClinic/pkg/logging"
-	"github.com/gin-gonic/gin"
+    "fmt"
+
+    "github.com/Ruletk/OnlineClinic/apps/doctor/internal/handler"
+    "github.com/Ruletk/OnlineClinic/apps/doctor/internal/repository"
+    "github.com/Ruletk/OnlineClinic/apps/doctor/internal/service"
+    "github.com/Ruletk/OnlineClinic/pkg/config"
+    "github.com/Ruletk/OnlineClinic/pkg/database"
+    "github.com/Ruletk/OnlineClinic/pkg/logging"
+
+    "github.com/gin-gonic/gin"
+    "github.com/nats-io/nats.go"
 )
 
 func main() {
-	// 1) init config
-	cfg, err := config.GetDefaultConfiguration()
-	if err != nil {
-		fmt.Printf("Error loading configuration: %v\n", err)
-		panic(err) // The initialization of the app failed, without a config we can't do anything
-	}
-	logging.InitLogger(*cfg)
+    // 1) Load configuration (from .env or real ENV)
+    cfg, err := config.GetDefaultConfiguration()
+    if err != nil {
+        fmt.Printf("Error loading configuration: %v\n", err)
+        panic(err)
+    }
 
-	logging.Logger.Debug("Setting up database connection")
-	db, err := database.NewPostgresDatabase(cfg)
-	if err != nil {
-		logging.Logger.WithError(err).Fatal("Failed to connect to the database")
-		panic(err) // Also, the initialization of the app failed, without a database we can't do anything
-	}
+    // 2) Init structured logger
+    logging.InitLogger(*cfg)
 
-	// 5) init layers
-	repo := repository.NewDoctorRepository(db)
-	svc := service.NewDoctorService(repo)
-	h := handler.NewDoctorHandler(svc)
+    // 3) Connect to Postgres via our pkg/database
+    db, err := database.NewPostgresDatabase(cfg)
+    if err != nil {
+        logging.Logger.WithError(err).Fatal("Failed to connect to the database")
+    }
 
-	// 6) gin router + routes
-	r := gin.Default()
-	h.RegisterRoutes(r)
+    // 4) (Optional) NATS — if URL is set in cfg.Nats.URL
+    var nc *nats.Conn
+    if cfg.Nats.URL != "" {
+        nc, err = nats.Connect(cfg.Nats.URL)
+        if err != nil {
+            logging.Logger.WithError(err).Error("Failed to connect to NATS. Continuing without NATS")
+            nc = nil
+        }
+    }
 
-	logging.Logger.Debug("Setting up NATS connection")
-	logging.Logger.WithError(err).Error("Failed to connect to NATS. Disabling NATS features.")
+    // 5) Wire up clean-arch layers
+    repo := repository.NewDoctorRepository(db)
+    svc := service.NewDoctorService(repo, nc)
+    h := handler.NewDoctorHandler(svc)
 
+    // 6) Setup Gin and register routes
+    router := gin.Default()
+    h.RegisterRoutes(router)
+
+    // 7) Start HTTP server
+    addr := fmt.Sprintf(":%s", cfg.Server.Port)
+    logging.Logger.Infof("Starting doctor service on %s", addr)
+    if err := router.Run(addr); err != nil {
+        logging.Logger.WithError(err).Fatal("Doctor service stopped")
+    }
 }
