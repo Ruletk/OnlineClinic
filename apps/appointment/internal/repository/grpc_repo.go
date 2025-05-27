@@ -52,7 +52,7 @@ func (g *grpcAppointmentRepository) GetAvailableSlots(ctx context.Context, req *
 }
 
 func (g *grpcAppointmentRepository) ChangeTimeSlot(ctx context.Context, req *gen.ChangeTimeSlotRequest) (*gen.ChangeTimeSlotResponse, error) {
-	logging.Logger.Infof("Changing time slot for doctor: %s, time: %s, status: %s", req.DoctorId, req.SlotTime, req.IsAvailable)
+	logging.Logger.Infof("Changing time slot for doctor: %s, time: %s, status: %v", req.DoctorId, req.SlotTime, req.IsAvailable)
 	if err := g.checkClient(); err != nil {
 		return nil, err
 	}

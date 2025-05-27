@@ -41,6 +41,24 @@ services:
         timeout: 1s
         retries: 100
 
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    container_name: api-gateway
+    restart: always
+    environment:
+      - TZ=Asia/Aqtobe
+    ports:
+      - "80:8080"
+    networks:
+      internal:
+    depends_on:
+      db:
+          condition: service_healthy
+      redis:
+          condition: service_healthy
+
   appointment:
     build:
       context: .
@@ -79,7 +97,7 @@ services:
       - DB_HOST=db
       - DB_PORT=5432
       - DB_NAME=postgres
-      - APP_PORT=8000
+      - APP_PORT=8080
       - LOGGER_LEVEL=debug
       - NATS_URL=nats://nats:4222
     depends_on:
@@ -148,6 +166,36 @@ services:
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
       - DATABASE_NAME=postgres
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    environment:
+      - TZ=Asia/Aqtobe
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    networks:
+      internal:
+
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "30000:3000"
+    volumes:
+      - ./config/grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - TZ=Asia/Aqtobe
+    depends_on:
+      - prometheus
+    networks:
+      internal:
 
 volumes:
   db_data:
