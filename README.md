@@ -10,9 +10,8 @@ A microservice-based electronic health record (EHR) management system with REST/
   - gRPC (protobuf v3)
 - **Database**: PostgreSQL + GORM
 - **Containerization**: Docker
-- **Documentation**: Swagger (planned)
-- **Logging**: Zap
-- **Validation**: go-playground/validator
+- **Documentation**: Swagger 
+- **Logging**: Logrus
 
 ## Features 
 1. **Patient Management**:
@@ -23,7 +22,6 @@ A microservice-based electronic health record (EHR) management system with REST/
    - Insurance policies
    - Doctor prescriptions
 3. **Integrations**:
-   - Connection with User service
    - External system support via gRPC
 
 ### Requirements:
@@ -32,7 +30,7 @@ A microservice-based electronic health record (EHR) management system with REST/
 ### Developer installation
 Prepare golang
 ```bash
-go mod tidy
+make tidy
 ```
 
 Prepare docker
@@ -52,15 +50,13 @@ cd OnlineClinic
 # 2. Start services
 docker-compose up -d --build
 
-# 3. Verify the setup
-curl http://localhost:8080/patients
-
+```
 ##   Run Unit tests
-
+```bash
 make test-pkg
 
 make test-service
-
+```
 
 ## Git naming
 
