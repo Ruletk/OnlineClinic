@@ -114,3 +114,25 @@ func (c NatsConfig) Validate() error {
 	}
 	return nil
 }
+
+func (c RedisConfig) Validate() error {
+	var errs []error
+
+	if c.Host == "" {
+		errs = append(errs, fmt.Errorf("redis host cannot be empty"))
+	}
+	if c.Port <= 0 {
+		errs = append(errs, fmt.Errorf("redis port must be greater than 0"))
+	}
+	if c.Port > 65535 {
+		errs = append(errs, fmt.Errorf("redis port must be less than 65536"))
+	}
+	if c.DB < 0 {
+		errs = append(errs, fmt.Errorf("redis db number cannot be negative"))
+	}
+
+	if len(errs) > 0 {
+		return errors.Join(errs...)
+	}
+	return nil
+}

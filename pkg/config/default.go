@@ -32,6 +32,11 @@ func GetDefaultConfiguration() (*Config, error) {
 
 	natsUrl := GetEnvWithDefault("NATS_URL", "nats://localhost:4222")
 
+	redisHost := GetEnvWithDefault("REDIS_HOST", "localhost")
+	redisPort := GetEnvWithDefault("REDIS_PORT", "6379")
+	redisPassword := GetEnvWithDefault("REDIS_PASSWORD", "")
+	redisDB := GetEnvWithDefault("REDIS_DB", "0")
+
 	appPortInt, err := strconv.Atoi(appPort)
 	if err != nil {
 		return nil, fmt.Errorf("invalid APP_PORT value: %w", err)
@@ -45,6 +50,16 @@ func GetDefaultConfiguration() (*Config, error) {
 	loggerEnableCallerBool, err := strconv.ParseBool(loggerEnableCaller)
 	if err != nil {
 		return nil, fmt.Errorf("invalid LOGGER_ENABLE_CALLER value: %w", err)
+	}
+
+	redisPortInt, err := strconv.Atoi(redisPort)
+	if err != nil {
+		return nil, fmt.Errorf("invalid REDIS_PORT value: %w", err)
+	}
+
+	redisDBInt, err := strconv.Atoi(redisDB)
+	if err != nil {
+		return nil, fmt.Errorf("invalid REDIS_DB value: %w", err)
 	}
 
 	dbConfig := DatabaseConfig{
@@ -75,6 +90,13 @@ func GetDefaultConfiguration() (*Config, error) {
 		Url: natsUrl,
 	}
 
+	redisConfig := RedisConfig{
+		Host:     redisHost,
+		Port:     redisPortInt,
+		Password: redisPassword,
+		DB:       redisDBInt,
+	}
+
 	if err := dbConfig.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid database configuration: %w", err)
 	}
@@ -91,11 +113,16 @@ func GetDefaultConfiguration() (*Config, error) {
 		return nil, fmt.Errorf("invalid NATS configuration: %w", err)
 	}
 
+	if err := redisConfig.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid Redis configuration: %w", err)
+	}
+
 	return &Config{
 		Database: dbConfig,
 		Backend:  backendConfig,
 		Logger:   loggerConfig,
 		Nats:     natsConfig,
+		Redis:    redisConfig,
 	}, nil
 }
 
