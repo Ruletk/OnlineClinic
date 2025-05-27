@@ -34,7 +34,7 @@ func ReverseProxy(service *ServiceConfig) gin.HandlerFunc {
 			req.URL.Path = c.Param("proxyPath")
 			req.URL.RawQuery = c.Request.URL.RawQuery
 
-			if accessToken, exists := c.Get("access_token"); exists {
+			if accessToken, exists := c.Get("X-Access-Token"); exists {
 				req.Header.Set("X-Access-Token", accessToken.(string))
 			}
 		}
