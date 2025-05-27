@@ -10,6 +10,7 @@ type Config struct {
 	Backend  BackendConfig
 	Logger   LoggerConfig
 	Nats     NatsConfig
+	Redis    RedisConfig
 }
 
 type DatabaseConfig struct {
@@ -38,4 +39,11 @@ type LoggerConfig struct {
 
 type NatsConfig struct {
 	Url string // NATS server URL
+}
+
+type RedisConfig struct {
+	Host     string // Redis host, ip address or domain name
+	Port     int    // Redis port, usually 6379
+	Password string // Redis password to authenticate
+	DB       int    // Redis database number
 }
