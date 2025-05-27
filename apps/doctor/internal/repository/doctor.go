@@ -1,10 +1,9 @@
 package repository
 
 import (
+	"github.com/Ruletk/OnlineClinic/apps/doctor/internal/model"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-
-	"doctor/internal/model"
 )
 
 // DoctorRepository описывает доступ к хранилищу врачей

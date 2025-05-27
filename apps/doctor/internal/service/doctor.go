@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"doctor/internal/model"
-	"doctor/internal/repository"
 	"errors"
+	"github.com/Ruletk/OnlineClinic/apps/doctor/internal/model"
+	"github.com/Ruletk/OnlineClinic/apps/doctor/internal/repository"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"

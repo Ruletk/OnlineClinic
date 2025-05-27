@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"doctor/internal/model"
+	"github.com/Ruletk/OnlineClinic/apps/doctor/internal/model"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

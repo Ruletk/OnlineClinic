@@ -1,12 +1,11 @@
 package handler
 
 import (
+	"github.com/Ruletk/OnlineClinic/apps/doctor/internal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-
-	"doctor/internal/service"
 )
 
 type DoctorHandler struct {

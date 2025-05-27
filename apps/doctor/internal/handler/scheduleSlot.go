@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"doctor/internal/model"
-	"doctor/internal/service"
+	"github.com/Ruletk/OnlineClinic/apps/doctor/internal/model"
+	"github.com/Ruletk/OnlineClinic/apps/doctor/internal/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
