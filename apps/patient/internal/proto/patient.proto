@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package patient;
+
+option go_package = "patient/internal/proto";
+
+service PatientService {
+    rpc CreatePatient (PatientRequest) returns (PatientResponse);
+    rpc GetPatient (GetPatientRequest) returns (PatientResponse);
+    rpc UpdatePatient (PatientRequest) returns (PatientResponse);
+    rpc DeletePatient (DeletePatientRequest) returns (DeletePatientResponse);
+}
+
+message PatientRequest {
+    uint64 ID = 1;
+    string Name = 2;
+    int32 Age = 3;
+    string Medical_record = 4;
+    string Blood_type = 5;
+    string Allergies = 6;
+    string Medications = 7;
+}
+
+message GetPatientRequest {
+    uint64 ID = 1;
+}
+
+message PatientResponse {
+    uint64 ID = 1;
+    string Name = 2;
+    int32 Age = 3;
+    string Medical_record = 4;
+    string Blood_type = 5;
+    string Allergies = 6;
+    string Medications = 7;
+}
+
+message DeletePatientRequest {
+    uint64 ID = 1;
+}
+
+message DeletePatientResponse {
+    bool success = 1;
+}
