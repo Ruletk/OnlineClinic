@@ -47,7 +47,7 @@ func (s *doctorService) CreateDoctor(ctx context.Context, req CreateDoctorReques
 		Status: model.Active,
 	}
 
-	if err := s.repo.Create(ctx, doc); err != nil {
+	if err := s.repo.Create(doc); err != nil {
 		return nil, err
 	}
 
@@ -67,7 +67,7 @@ func (s *doctorService) CreateDoctor(ctx context.Context, req CreateDoctorReques
 }
 
 func (s *doctorService) GetDoctorByID(ctx context.Context, id uuid.UUID) (*DoctorDTO, error) {
-	doc, err := s.repo.GetByID(ctx, id)
+	doc, err := s.repo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
@@ -90,7 +90,7 @@ func (s *doctorService) GetDoctorByID(ctx context.Context, id uuid.UUID) (*Docto
 }
 
 func (s *doctorService) UpdateDoctor(ctx context.Context, req UpdateDoctorRequest) (*DoctorDTO, error) {
-	existing, err := s.repo.GetByID(ctx, req.ID)
+	existing, err := s.repo.GetByID(req.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrNotFound
@@ -108,7 +108,7 @@ func (s *doctorService) UpdateDoctor(ctx context.Context, req UpdateDoctorReques
 	existing.SpecializationID = req.SpecializationID
 	existing.Status = model.DoctorStatus(req.Status)
 
-	if err := s.repo.Update(ctx, existing); err != nil {
+	if err := s.repo.Update(existing); err != nil {
 		return nil, err
 	}
 
@@ -126,7 +126,7 @@ func (s *doctorService) UpdateDoctor(ctx context.Context, req UpdateDoctorReques
 }
 
 func (s *doctorService) DeleteDoctor(ctx context.Context, id uuid.UUID) (*DeleteDoctorResponse, error) {
-	if err := s.repo.Delete(ctx, id); err != nil {
+	if err := s.repo.Delete(id); err != nil {
 		return nil, err
 	}
 	return &DeleteDoctorResponse{Success: true}, nil
