@@ -31,7 +31,7 @@ type appointmentService struct {
 }
 
 func (a appointmentService) Create(req *dto.CreateAppointmentRequest) (*dto.AppointmentResponse, error) {
-	logging.Logger.Infof("Creating appointment for user ID: %s with doctor ID: %s on date: %s", req.UserID, req.DoctorID, req.Date)
+	logging.Logger.Infof("Creating appointment for user ID: %d with doctor ID: %s on date: %s", req.UserID, req.DoctorID, req.Date)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -64,7 +64,7 @@ func (a appointmentService) Create(req *dto.CreateAppointmentRequest) (*dto.Appo
 		Notes:    req.Notes,
 	}
 	if err := a.repo.Create(appointment); err != nil {
-		logging.Logger.Errorf("Failed to create appointment for user ID: %s with doctor ID: %s on date: %s, error: %v", req.UserID, req.DoctorID, req.Date, err)
+		logging.Logger.Errorf("Failed to create appointment for user ID: %d with doctor ID: %s on date: %s, error: %v", req.UserID, req.DoctorID, req.Date, err)
 		return nil, fmt.Errorf("failed to create appointment: %v", err)
 	}
 	return dto.AppointmentResponseFromModel(appointment), nil
@@ -98,14 +98,14 @@ func (a appointmentService) Delete(req *dto.AppointmentIDRequest) error {
 }
 
 func (a appointmentService) GetByUserID(req *dto.GetAppointmentsByUserIDRequest) (*dto.AppointmentListResponse, error) {
-	logging.Logger.Infof("Getting appointments for user ID: %s", req.UserID)
+	logging.Logger.Infof("Getting appointments for user ID: %d", req.UserID)
 	appointments, err := a.repo.ListByUserID(req.UserID)
 	if err != nil {
-		logging.Logger.Errorf("Failed to get appointments for user ID: %s, error: %v", req.UserID, err)
+		logging.Logger.Errorf("Failed to get appointments for user ID: %d, error: %v", req.UserID, err)
 		return nil, fmt.Errorf("repository get by user ID failed: %w", err)
 	}
 	if len(appointments) == 0 {
-		logging.Logger.Warnf("No appointments found for user ID: %s", req.UserID)
+		logging.Logger.Warnf("No appointments found for user ID: %d", req.UserID)
 		return &dto.AppointmentListResponse{Appointments: []dto.AppointmentResponse{}}, nil
 	}
 	return dto.AppointmentListResponseFromModel(appointments), nil
