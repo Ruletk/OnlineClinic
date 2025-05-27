@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package doctor;
+
+// Указывает куда будет сгенерирован Go-код
+option go_package = "doctor/genproto;genproto";
+
+// gRPC-сервис, который предоставляет doctor-service
+service DoctorService {
+  // Получить доктора по ID
+  rpc GetDoctorByID(GetDoctorRequest) returns (DoctorResponse);
+  
+  // Создать нового доктора
+  rpc CreateDoctor(CreateDoctorRequest) returns (DoctorResponse);
+  
+  // Обновить доктора
+  rpc UpdateDoctor(UpdateDoctorRequest) returns (DoctorResponse);
+  
+  // Удалить доктора
+  rpc DeleteDoctor(DeleteDoctorRequest) returns (DeleteDoctorResponse);
+}
+
+// === Messages ===
+
+message GetDoctorRequest {
+  int64 id = 1;
+}
+
+message CreateDoctorRequest {
+  string name = 1;
+  string specialty = 2;
+  string email = 3;
+}
+
+message UpdateDoctorRequest {
+  int64 id = 1;
+  string name = 2;
+  string specialty = 3;
+  string email = 4;
+}
+
+message DeleteDoctorRequest {
+  int64 id = 1;
+}
+
+message DeleteDoctorResponse {
+  string status = 1;
+}
+
+message DoctorResponse {
+  int64 id = 1;
+  string name = 2;
+  string specialty = 3;
+  string email = 4;
+}
