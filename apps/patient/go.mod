@@ -48,3 +48,9 @@ require (
     google.golang.org/protobuf v1.36.6
     gorm.io/gorm v1.30.0
 )
+
+replace (
+	github.com/Ruletk/OnlineClinic/pkg/config => ../../pkg/config
+	github.com/Ruletk/OnlineClinic/pkg/logging => ../../pkg/logging
+	github.com/Ruletk/OnlineClinic/pkg/proto => ../../pkg/proto
+)
