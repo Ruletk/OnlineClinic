@@ -7,7 +7,6 @@ use (
 	apps/doctor
 	apps/notification
 	apps/patient
-	apps/user
 
 	pkg/config
 	pkg/database
