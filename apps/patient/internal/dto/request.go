@@ -17,9 +17,10 @@ type GetPatientRequest struct {
 }
 
 type UpdatePatientRequest struct {
-	BloodType string  `json:"blood_type" validate:"omitempty,oneof=A+ A- B+ B- AB+ AB- O+ O-"`
-	Height    float64 `json:"height" validate:"omitempty,min=0"`
-	Weight    float64 `json:"weight" validate:"omitempty,min=0"`
+	BloodType string    `json:"blood_type" validate:"omitempty,oneof=A+ A- B+ B- AB+ AB- O+ O-"`
+	Height    float64   `json:"height" validate:"omitempty,min=0"`
+	Weight    float64   `json:"weight" validate:"omitempty,min=0"`
+	PatientID uuid.UUID `json:"patient_id" validate:"required"`
 }
 
 type CreateAllergyRequest struct {

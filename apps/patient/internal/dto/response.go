@@ -84,3 +84,39 @@ func NewPrescriptionResponses(prescriptions []models.Prescription) *Prescription
 		Prescriptions: responses,
 	}
 }
+
+func NewInsuranceResponses(insurances []models.Insurance) *InsuranceResponses {
+	responses := make([]InsuranceResponse, len(insurances))
+	for i, insurance := range insurances {
+		responses[i] = InsuranceResponse{
+			ID:             insurance.ID,
+			PatientID:      insurance.PatientID,
+			Provider:       insurance.Provider,
+			PolicyNumber:   insurance.PolicyNumber,
+			ExpirationDate: insurance.ExpirationDate,
+		}
+	}
+	return &InsuranceResponses{
+		Count:      len(responses),
+		Insurances: responses,
+	}
+
+}
+
+func NewAllergyResponses(allergies []models.Allergy) *AllergyResponses {
+	responses := make([]AllergyResponse, len(allergies))
+	for i, allergy := range allergies {
+		responses[i] = AllergyResponse{
+			ID:         allergy.ID,
+			PatientID:  allergy.PatientID,
+			Name:       allergy.Name,
+			Severity:   allergy.Severity,
+			ObservedAt: allergy.ObservedAt,
+		}
+	}
+	return &AllergyResponses{
+		Count:     len(responses),
+		Allergies: responses,
+	}
+
+}
