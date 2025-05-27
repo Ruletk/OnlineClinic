@@ -10,8 +10,8 @@ import (
 )
 
 type AllergyService interface {
-	Create(req *dto.CreateAllergyRequest) (*dto.AllergyResponses, error)
-	Update(req *dto.UpdateAllergyRequest) (*dto.AllergyResponses, error)
+	Create(req *dto.CreateAllergyRequest) (*dto.AllergyResponse, error)
+	Update(req *dto.UpdateAllergyRequest) (*dto.AllergyResponse, error)
 	Delete(req *dto.DeleteAllergyRequest) error
 }
 
@@ -97,7 +97,7 @@ func (a allergyService) Delete(req *dto.DeleteAllergyRequest) error {
 	return a.repo.Delete(req.AllergyID)
 }
 
-func NewAllergyService(repo repositories.AllergyRepository) *allergyService {
+func NewAllergyService(repo repositories.AllergyRepository) AllergyService {
 	return &allergyService{
 		repo: repo,
 	}

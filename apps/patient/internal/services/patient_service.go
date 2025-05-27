@@ -18,7 +18,7 @@ type PatientService interface {
 	AddPatientAllergy(req *dto.CreateAllergyRequest) (*dto.PatientResponse, error)
 	AddPatientInsurance(req *dto.CreateInsuranceRequest) (*dto.PatientResponse, error)
 	AddPatientPrescription(req *dto.CreatePrescriptionRequest) (*dto.PatientResponse, error)
-	DeletePatientAllergy(req *dto.DeleteAllergyRequest) *dto.PatientResponse
+	DeletePatientAllergy(req *dto.DeleteAllergyRequest) (*dto.PatientResponse, error)
 	DeletePatientInsurance(req *dto.DeleteInsuranceRequest) (*dto.PatientResponse, error)
 	DeletePatientPrescription(req *dto.DeletePrescriptionRequest) (*dto.PatientResponse, error)
 	GetAllPatients(limit, offset int) (*dto.PatientResponses, error)
@@ -30,6 +30,11 @@ type patientService struct {
 	allergyService      AllergyService
 	insuranceService    InsuranceService
 	prescriptionService PrescriptionService
+}
+
+func (p patientService) DeletePatient(req uuid.UUID) *dto.PatientResponse {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (p patientService) GetPatientByID(req *dto.GetPatientRequest) (*dto.PatientResponse, error) {
@@ -338,7 +343,7 @@ func (p patientService) GetAllPatients(limit, offset int) (*dto.PatientResponses
 	}, nil
 }
 
-func NewPatientService(repo repositories.PatientRepository, allergyService *allergyService, insuranceService InsuranceService, prescriptionService PrescriptionService) *patientService {
+func NewPatientService(repo repositories.PatientRepository, allergyService *allergyService, insuranceService InsuranceService, prescriptionService PrescriptionService) PatientService {
 	return &patientService{
 		repo:                repo,
 		allergyService:      allergyService,
