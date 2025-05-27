@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "github.com/Ruletk/OnlineClinic/pkg/proto/utils/gen/email;email";
+
+import "google/protobuf/empty.proto";
+
+message SendEmailRequest  {
+    string to = 1;
+    string subject = 2;
+    string message = 3;
+}
+
+service EmailService {
+    rpc Send (SendEmailRequest) returns (google.protobuf.Empty);
+}

@@ -1,0 +1,57 @@
+name: Test apps/services
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ 1.23.8 ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.go-version }}-
+
+      - name: Run tests for all services
+        run: |
+          set -e
+          FAILED=0
+
+          for modfile in $(find ./apps -type f -name "go.mod"); do
+            dir=$(dirname "$modfile")
+            echo "Running tests in $dir"
+            (
+              cd "$dir"
+              go mod download
+              go test ./...
+            ) || {
+              echo "Tests failed in $dir"
+              FAILED=1
+            }
+          done
+
+          if [ "$FAILED" -ne 0 ]; then
+            echo "Some tests failed"
+            exit 1
+          fi
+

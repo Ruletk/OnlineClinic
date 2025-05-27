@@ -10,17 +10,36 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
-    ports:
-      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      - internal
+      internal:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 1s
       timeout: 1s
       retries: 100
+
+  nats:
+    image: nats:2.11.3
+    container_name: nats
+    networks:
+      internal:
+
+  redis:
+    image: redis:8.0.1
+    container_name: redis
+    environment:
+      - TZ=Asia/Aqtobe
+      - REDIS_PASSWORD=
+      - REDIS_PORT=6379
+    networks:
+      internal:
+    healthcheck:
+        test: ["CMD", "redis-cli", "ping"]
+        interval: 1s
+        timeout: 1s
+        retries: 100
 
   appointment:
     build:
@@ -30,11 +49,22 @@ services:
     restart: always
     environment:
       - TZ=Asia/Aqtobe
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+    networks:
+      internal:
+    depends_on:
+      db:
+          condition: service_healthy
+      redis:
+          condition: service_healthy
 
   auth:
     build:
@@ -44,18 +74,27 @@ services:
     restart: always
     environment:
       - TZ=Asia/Aqtobe
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=postgres
+      - APP_PORT=8000
+      - LOGGER_LEVEL=debug
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      internal:
+    ports:
+      - "8000:8000"
 
   doctor:
     build:
       context: .
       dockerfile: apps/doctor/Dockerfile
     container_name: doctor
-    restart: always
     environment:
       - TZ=Asia/Aqtobe
       - DATABASE_USER=postgres
@@ -64,12 +103,11 @@ services:
       - DATABASE_PORT=5432
       - DATABASE_NAME=postgres
 
-  medicalrecords:
+  notification:
     build:
       context: .
-      dockerfile: apps/medicalrecords/Dockerfile
-    container_name: medicalrecords
-    restart: always
+      dockerfile: apps/notification/Dockerfile
+    container_name: notification
     environment:
       - TZ=Asia/Aqtobe
       - DATABASE_USER=postgres
@@ -77,27 +115,19 @@ services:
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
       - DATABASE_NAME=postgres
+      - NATS_URL=nats://nats:4222
+      - LOGGER_LEVEL=debug
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      internal:
 
   patient:
     build:
       context: .
       dockerfile: apps/patient/Dockerfile
     container_name: patient
-    restart: always
-    environment:
-      - TZ=Asia/Aqtobe
-      - DATABASE_USER=postgres
-      - DATABASE_PASSWORD=postgres
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
-      - DATABASE_NAME=postgres
-
-  prescription:
-    build:
-      context: .
-      dockerfile: apps/prescription/Dockerfile
-    container_name: prescription
-    restart: always
     environment:
       - TZ=Asia/Aqtobe
       - DATABASE_USER=postgres
@@ -111,7 +141,6 @@ services:
       context: .
       dockerfile: apps/user/Dockerfile
     container_name: user
-    restart: always
     environment:
       - TZ=Asia/Aqtobe
       - DATABASE_USER=postgres

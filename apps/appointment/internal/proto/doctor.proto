@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package doctor.v1;
+
+option go_package = "github.com/Ruletk/OnlineClinic/apps/appointment/internal/proto/doctor;doctorpb";
+
+import "google/protobuf/timestamp.proto";
+
+service DoctorService {
+    // Проверка доступности конкретного времени (для CreateAppointment)
+    rpc CheckTimeAvailability (CheckTimeAvailabilityRequest) returns (CheckTimeAvailabilityResponse);
+
+    // Получение списка всех свободных слотов (для отображения в UI)
+    rpc GetAvailableSlots (GetAvailableSlotsRequest) returns (GetAvailableSlotsResponse);
+
+    rpc ChangeTimeSlot (ChangeTimeSlotRequest) returns (ChangeTimeSlotResponse);
+}
+
+// ===== Запрос доступности конкретного времени =====
+message CheckTimeAvailabilityRequest {
+    string doctor_id = 1;
+    google.protobuf.Timestamp slot_time = 2;  // Конкретное время для проверки
+}
+
+message CheckTimeAvailabilityResponse {
+    bool is_available = 1;
+    string reason = 2;  // Причина недоступности (например, "already booked")
+}
+
+// ===== Запрос всех свободных слотов =====
+message GetAvailableSlotsRequest {
+    string doctor_id = 1;
+    google.protobuf.Timestamp start_date = 2;  // Начало периода (опционально)
+    google.protobuf.Timestamp end_date = 3;    // Конец периода (опционально)
+}
+
+message TimeSlot {
+    google.protobuf.Timestamp start_time = 1;
+    google.protobuf.Timestamp end_time = 2;
+    string status = 3;  // "free", "booked", "break"
+}
+
+message GetAvailableSlotsResponse {
+    repeated TimeSlot slots = 1;
+}
+
+// ===== Запрос на изменение слота времени =====
+message ChangeTimeSlotRequest {
+    string doctor_id = 1;
+    google.protobuf.Timestamp slot_time = 2;
+    bool is_available = 3;  // Новый статус слота (доступен/недоступен)
+}
+
+message ChangeTimeSlotResponse {
+    bool success = 1;
+    string message = 2;  // Дополнительная информация (например, "Slot updated successfully")
+}
