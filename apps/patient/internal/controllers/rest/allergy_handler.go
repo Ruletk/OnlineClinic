@@ -65,7 +65,7 @@ func (h *PatientHandler) DeleteAllergy(c *gin.Context) {
 		return
 	}
 
-	if err := h.service.DeletePatientAllergy(&dto.DeleteAllergyRequest{AllergyID: allergyID}); err != nil {
+	if _, err := h.service.DeletePatientAllergy(&dto.DeleteAllergyRequest{AllergyID: allergyID}); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

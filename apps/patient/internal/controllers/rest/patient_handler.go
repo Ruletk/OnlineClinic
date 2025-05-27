@@ -13,8 +13,8 @@ type PatientHandler struct {
 	service services.PatientService
 }
 
-func NewPatientHandler(s *interface{}) *PatientHandler {
-	return &PatientHandler{service: s}
+func NewPatientHandler(service services.PatientService) *PatientHandler {
+	return &PatientHandler{service: service}
 }
 
 func (h *PatientHandler) RegisterRoutes(router *gin.Engine) {
