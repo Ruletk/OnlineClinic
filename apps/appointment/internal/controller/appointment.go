@@ -15,7 +15,7 @@ type AppointmentController struct {
 }
 
 func (c *AppointmentController) RegisterRoutes(router *gin.RouterGroup) {
-	appointments := router.Group("/appointments")
+	appointments := router.Group("")
 	{
 		appointments.POST("", c.Create)
 		appointments.GET("/:id", c.GetByID)
