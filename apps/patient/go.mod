@@ -2,21 +2,6 @@ module patient
 
 go 1.23.8
 
-replace (
-	github.com/Ruletk/OnlineClinic/pkg/config => ../../pkg/config
-	github.com/Ruletk/OnlineClinic/pkg/logging => ../../pkg/logging
-	github.com/Ruletk/OnlineClinic/pkg/proto => ../../pkg/proto
-)
-
-require (
-	github.com/Ruletk/OnlineClinic/pkg/config v0.0.0
-	github.com/Ruletk/OnlineClinic/pkg/database v0.0.0-20250522101022-8f0b527dbcc8
-	github.com/Ruletk/OnlineClinic/pkg/logging v0.0.0-20250522101022-8f0b527dbcc8
-	github.com/google/uuid v1.6.0
-	google.golang.org/grpc v1.72.2
-	google.golang.org/protobuf v1.36.6
-	gorm.io/gorm v1.30.0
-)
 
 require (
 	github.com/bytedance/sonic v1.13.2 // indirect
@@ -55,4 +40,11 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250519155744-55703ea1f237 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/driver/postgres v1.5.11 // indirect
+	github.com/Ruletk/OnlineClinic/pkg/config v0.0.0
+    github.com/Ruletk/OnlineClinic/pkg/database v0.0.0-20250522101022-8f0b527dbcc8
+    github.com/Ruletk/OnlineClinic/pkg/logging v0.0.0-20250522101022-8f0b527dbcc8
+    github.com/google/uuid v1.6.0
+    google.golang.org/grpc v1.72.2
+    google.golang.org/protobuf v1.36.6
+    gorm.io/gorm v1.30.0
 )
