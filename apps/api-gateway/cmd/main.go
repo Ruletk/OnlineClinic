@@ -7,6 +7,7 @@ import (
 	"github.com/Ruletk/OnlineClinic/pkg/config"
 	"github.com/Ruletk/OnlineClinic/pkg/logging"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -29,32 +30,39 @@ func main() {
 			Name: "auth",
 			Host: "auth",
 			Port: "8080",
+			Url:  fmt.Sprintf("http://%s:%s", "auth", "8080"),
 		},
 		"doctor": {
 			Name: "doctor",
 			Host: "doctor",
 			Port: "8080",
+			Url:  fmt.Sprintf("http://%s:%s", "doctor", "8080"),
 		},
 		"patient": {
 			Name: "patient",
 			Host: "patient",
 			Port: "8080",
+			Url:  fmt.Sprintf("http://%s:%s", "patient", "8080"),
 		},
 		"appointment": {
 			Name: "appointment",
 			Host: "appointment",
 			Port: "8080",
+			Url:  fmt.Sprintf("http://%s:%s", "appointment", "8080"),
 		},
 	}
+
+	r.Use(middleware.PrometheusMiddleware())
 	r.Use(middleware.TokenMiddleware())
 
 	for serviceName, serviceConfig := range services {
 		serviceGroup := r.Group(fmt.Sprintf("/%s", serviceName))
 		{
-			// Для каждой группы применяем свой ProxyMiddleware
 			serviceGroup.Any("/*proxyPath", middleware.ReverseProxy(&serviceConfig))
 		}
 	}
+
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	if err := r.Run(":8080"); err != nil {
 		logging.Logger.Fatalf("Failed to start server: %v", err)

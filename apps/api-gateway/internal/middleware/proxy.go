@@ -13,6 +13,7 @@ type ServiceConfig struct {
 	Name string
 	Host string
 	Port string
+	Url  string
 }
 
 func ReverseProxy(service *ServiceConfig) gin.HandlerFunc {
@@ -31,6 +32,7 @@ func ReverseProxy(service *ServiceConfig) gin.HandlerFunc {
 			req.URL.Scheme = remote.Scheme
 			req.URL.Host = remote.Host
 			req.URL.Path = c.Param("proxyPath")
+			req.URL.RawQuery = c.Request.URL.RawQuery
 
 			if accessToken, exists := c.Get("access_token"); exists {
 				req.Header.Set("X-Access-Token", accessToken.(string))
