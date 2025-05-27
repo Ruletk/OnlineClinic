@@ -343,7 +343,7 @@ func (p patientService) GetAllPatients(limit, offset int) (*dto.PatientResponses
 	}, nil
 }
 
-func NewPatientService(repo repositories.PatientRepository, allergyService *allergyService, insuranceService InsuranceService, prescriptionService PrescriptionService) PatientService {
+func NewPatientService(repo repositories.PatientRepository, allergyService AllergyService, insuranceService InsuranceService, prescriptionService PrescriptionService) PatientService {
 	return &patientService{
 		repo:                repo,
 		allergyService:      allergyService,

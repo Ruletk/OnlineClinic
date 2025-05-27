@@ -1,19 +1,16 @@
 package main
 
 import (
-	"context"
+	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+	"gorm.io/driver/postgres" // Или другой драйвер
+	"gorm.io/gorm"
 	"log"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
-
-	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
-	"gorm.io/driver/postgres" // Или другой драйвер
-	"gorm.io/gorm"
 
 	grpcpackage "patient/internal/controllers/grpc"
 	"patient/internal/controllers/rest"
@@ -92,14 +89,6 @@ func main() {
 	// Ожидание сигнала завершения
 	<-done
 	log.Println("Shutting down servers...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	// Остановка REST сервера
-	if err := router.RunContext(ctx); err != nil {
-		log.Println("REST shutdown error:", err)
-	}
 
 	// Остановка gRPC сервера
 	grpcServer.GracefulStop()
