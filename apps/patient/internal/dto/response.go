@@ -18,6 +18,12 @@ type PatientResponse struct {
 	UpdatedAt  time.Time          `json:"updated_at"`
 }
 
+func (r PatientResponse) Error() any {
+	return map[string]any{
+		"error": "Patient not found",
+	}
+}
+
 type PatientResponses struct {
 	Count    int               `json:"count"`
 	Patients []PatientResponse `json:"patients"`

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/google/uuid"
 	"patient/internal/dto"
 	"patient/internal/models"
 	"patient/internal/repositories"
@@ -13,10 +14,11 @@ type PatientService interface {
 	GetPatientPrescriptions(req *dto.GetPatientRequest) (*dto.PrescriptionResponses, error)
 	CreatePatient(req *dto.CreatePatientRequest) (*dto.PatientResponse, error)
 	UpdatePatient(req *dto.UpdatePatientRequest) (*dto.PatientResponse, error)
+	DeletePatient(req uuid.UUID) *dto.PatientResponse
 	AddPatientAllergy(req *dto.CreateAllergyRequest) (*dto.PatientResponse, error)
 	AddPatientInsurance(req *dto.CreateInsuranceRequest) (*dto.PatientResponse, error)
 	AddPatientPrescription(req *dto.CreatePrescriptionRequest) (*dto.PatientResponse, error)
-	DeletePatientAllergy(req *dto.DeleteAllergyRequest) (*dto.PatientResponse, error)
+	DeletePatientAllergy(req *dto.DeleteAllergyRequest) *dto.PatientResponse
 	DeletePatientInsurance(req *dto.DeleteInsuranceRequest) (*dto.PatientResponse, error)
 	DeletePatientPrescription(req *dto.DeletePrescriptionRequest) (*dto.PatientResponse, error)
 	GetAllPatients(limit, offset int) (*dto.PatientResponses, error)
@@ -336,12 +338,7 @@ func (p patientService) GetAllPatients(limit, offset int) (*dto.PatientResponses
 	}, nil
 }
 
-func NewPatientService(
-	repo repositories.PatientRepository,
-	allergyService AllergyService,
-	insuranceService InsuranceService,
-	prescriptionService PrescriptionService,
-) PatientService {
+func NewPatientService(repo repositories.PatientRepository, allergyService *allergyService, insuranceService InsuranceService, prescriptionService PrescriptionService) *patientService {
 	return &patientService{
 		repo:                repo,
 		allergyService:      allergyService,

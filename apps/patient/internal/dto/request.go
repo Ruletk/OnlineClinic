@@ -23,6 +23,10 @@ type UpdatePatientRequest struct {
 	PatientID uuid.UUID `json:"patient_id" validate:"required"`
 }
 
+type DeletePatientRequest struct {
+	PatientID uuid.UUID `json:"patient_id" validate:"required"`
+}
+
 type CreateAllergyRequest struct {
 	PatientID  uuid.UUID `json:"patient_id" validate:"required"`
 	Name       string    `json:"name" validate:"required"`

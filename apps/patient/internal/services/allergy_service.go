@@ -96,3 +96,9 @@ func (a allergyService) Delete(req *dto.DeleteAllergyRequest) error {
 	// Call the repository to delete the allergy
 	return a.repo.Delete(req.AllergyID)
 }
+
+func NewAllergyService(repo repositories.AllergyRepository) *allergyService {
+	return &allergyService{
+		repo: repo,
+	}
+}

@@ -14,18 +14,15 @@ type PatientController struct {
 	service *services.PatientService
 }
 
-func NewPatientController(svc *services.PatientService) *PatientController {
+func NewPatientController(svc *interface{}) *PatientController {
 	return &PatientController{service: svc}
 }
 
 func (c *PatientController) CreatePatient(ctx context.Context, req *proto.PatientRequest) (*proto.PatientResponse, error) {
 	patient := &models.Patient{
-		Name:          req.Name,
-		Age:           int(req.Age),
-		MedicalRecord: req.MedicalRecord,
-		BloodType:     req.BloodType,
-		Allergies:     req.Allergies,
-		Medications:   req.Medications,
+		Height:    req.Height,
+		BloodType: req.BloodType,
+		Weight:    req.Weight,
 	}
 
 	if err := c.service.CreatePatient(patient); err != nil {
@@ -33,13 +30,12 @@ func (c *PatientController) CreatePatient(ctx context.Context, req *proto.Patien
 	}
 
 	return &proto.PatientResponse{
-		ID:            uint64(patient.ID),
-		Name:          patient.Name,
-		Age:           int32(patient.Age),
-		MedicalRecord: patient.MedicalRecord,
-		BloodType:     patient.BloodType,
-		Allergies:     patient.Allergies,
-		Medications:   patient.Medications,
+		ID:         uint64(patient.ID),
+		BloodType:  patient.BloodType,
+		Height:     patient.Height,
+		Weight:     patient.Weight,
+		Allergies:  patient.Allergies,
+		Insurances: patient.Insurances,
 	}, nil
 }
 
